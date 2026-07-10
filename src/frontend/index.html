@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Ứng dụng trực quan hóa thuật toán tìm đường A* trên bản đồ Việt Nam 34 tỉnh thành. So sánh BFS, DFS, UCS, A*, Greedy, Dijkstra.">
+    <title>A* Pathfinding Visualization - Bản đồ Việt Nam</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/map.css">
+    <link rel="stylesheet" href="css/animations.css">
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128506;</text></svg>">
+</head>
+<body>
+
+    <!-- ============================================================ -->
+    <!-- HEADER                                                        -->
+    <!-- ============================================================ -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <div class="header-icon">&#128506;</div>
+                <div class="header-title-group">
+                    <h1>A* Pathfinding Visualization</h1>
+                    <div class="header-subtitle">Tìm đường đi ngắn nhất trên bản đồ Việt Nam &bull; Trần Trung Hiếu</div>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="header-badge">
+                    <span class="dot"></span>
+                    <span id="conn-label">Connecting...</span>
+                </div>
+                <div class="header-badge">
+                    &#128205; <span id="city-count">36</span> Vị trí
+                </div>
+                <div class="header-badge">
+                    &#128279; <span id="edge-count">43</span> Tuyến đường
+                </div>
+                <div class="header-badge version-badge">
+                    v2.0 &bull; Leaflet
+                </div>
+                <div class="header-badge" id="algo-status-badge" style="display:none">
+                    <span class="spinner"></span>
+                    <span id="algo-status-text">Đang chạy...</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ============================================================ -->
+    <!-- MAIN CONTENT                                                  -->
+    <!-- ============================================================ -->
+    <main class="main-container">
+
+        <!-- ======== MAP SECTION (Left) ======== -->
+        <section class="map-section glass-card" id="map-section">
+            <!-- Map Toolbar -->
+            <div class="map-toolbar">
+                <div class="toolbar-group">
+                    <button class="toolbar-btn active" id="btn-select-mode" title="Chọn điểm đầu/cuối">&#128070; Chọn điểm</button>
+                    <button class="toolbar-btn" id="btn-obstacle-mode" title="Đặt/Xóa chướng ngại vật">&#128679; Chướng ngại vật</button>
+                    <button class="toolbar-btn" id="btn-weight-mode" title="Sửa trọng số (chiều dài) cạnh">&#9998; Chỉnh trọng số</button>
+                </div>
+                <div class="toolbar-separator"></div>
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" id="btn-random-blocks" title="Tạo chướng ngại vật ngẫu nhiên">
+                        &#127922; Random
+                    </button>
+                    <button class="toolbar-btn" id="btn-clear-obstacles" title="Xóa tất cả chướng ngại vật">
+                        &#128465;&#65039; Xóa vật cản
+                    </button>
+                    <button class="toolbar-btn" id="btn-reset-all" title="Reset tất cả">
+                        &#8634; Reset
+                    </button>
+                    <button class="toolbar-btn" id="btn-toggle-labels" title="Ẩn/hiện khoảng cách">
+                        &#128207; Khoảng cách
+                    </button>
+                </div>
+                <div class="toolbar-separator"></div>
+                <div class="toolbar-group">
+                    <div class="toolbar-search">
+                        <input type="text" class="toolbar-search-input" id="city-search" placeholder="&#128269; Tìm tỉnh thành..." autocomplete="off">
+                        <div class="toolbar-search-results" id="city-search-results"></div>
+                    </div>
+                </div>
+                <div class="toolbar-info" id="toolbar-status">
+                    Nhấn vào tỉnh thành để chọn điểm xuất phát
+                </div>
+            </div>
+
+            <!-- Map Container (Leaflet) -->
+            <div class="map-container" id="map-container">
+                <div id="leaflet-map"></div>
+
+                <!-- Tooltip -->
+                <div class="map-tooltip" id="map-tooltip">
+                    <div class="tooltip-city" id="tooltip-city"></div>
+                    <div class="tooltip-coords" id="tooltip-coords"></div>
+                </div>
+
+                <!-- Map Watermark -->
+                <div class="map-watermark">
+                    <span>&#128506;</span> Vietnam Pathfinder v2.0
+                </div>
+            </div>
+        </section>
+
+        <!-- ======== CONTROL PANEL (Right) ======== -->
+        <aside class="control-panel">
+
+            <!-- ===== Algorithm Selection ===== -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <h2><span class="icon">&#9889;</span> Thuật toán</h2>
+                    <span class="algo-type-tag informed" id="algo-category-tag">Informed</span>
+                </div>
+                <div class="card-body">
+
+                    <!-- Hidden select for JS compatibility -->
+                    <select class="form-select" id="algorithm-select" style="display:none">
+                        <optgroup label="Tìm kiếm có thông tin">
+                            <option value="astar" selected>A* Search</option>
+                            <option value="greedy">Tham lam (Greedy)</option>
+                            <option value="dijkstra">Dijkstra</option>
+                        </optgroup>
+                        <optgroup label="Tìm kiếm mù">
+                            <option value="bfs">BFS</option>
+                            <option value="dfs">DFS</option>
+                            <option value="ucs">UCS</option>
+                        </optgroup>
+                    </select>
+
+                    <!-- Visual Algo Picker: Informed -->
+                    <div class="algo-section-title">Tìm kiếm có thông tin</div>
+                    <div class="algo-cards" id="algo-cards-informed">
+                        <div class="algo-card active" data-algo="astar" data-type="informed">
+                            <div class="algo-card-icon">A*</div>
+                            <div class="algo-card-name">A* Search</div>
+                        </div>
+                        <div class="algo-card" data-algo="greedy" data-type="informed">
+                            <div class="algo-card-icon">GR</div>
+                            <div class="algo-card-name">Tham lam</div>
+                        </div>
+                        <div class="algo-card" data-algo="dijkstra" data-type="informed">
+                            <div class="algo-card-icon">DJ</div>
+                            <div class="algo-card-name">Dijkstra</div>
+                        </div>
+                    </div>
+
+                    <!-- Visual Algo Picker: Blind -->
+                    <div class="algo-section-title blind">Tìm kiếm mù</div>
+                    <div class="algo-cards" id="algo-cards-blind">
+                        <div class="algo-card" data-algo="bfs" data-type="blind">
+                            <div class="algo-card-icon">BFS</div>
+                            <div class="algo-card-name">Breadth-First</div>
+                        </div>
+                        <div class="algo-card" data-algo="dfs" data-type="blind">
+                            <div class="algo-card-icon">DFS</div>
+                            <div class="algo-card-name">Depth-First</div>
+                        </div>
+                        <div class="algo-card" data-algo="ucs" data-type="blind">
+                            <div class="algo-card-icon">UCS</div>
+                            <div class="algo-card-name">Uniform Cost</div>
+                        </div>
+                    </div>
+
+                    <!-- City Selects -->
+                    <div class="form-group" style="margin-top: 0.4rem;">
+                        <label class="form-label">Điểm xuất phát</label>
+                        <select class="form-select" id="start-select">
+                            <option value="">-- Chọn hoặc click bản đồ --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Điểm đích</label>
+                        <select class="form-select" id="end-select">
+                            <option value="">-- Chọn hoặc click bản đồ --</option>
+                        </select>
+                    </div>
+
+                    <div class="btn-group" style="margin-top:0.5rem">
+                        <button class="btn btn-primary" id="btn-find-path" disabled>
+                            &#128640; Tìm đường
+                        </button>
+                        <button class="btn btn-secondary" id="btn-step-mode" disabled>
+                            &#128062; Từng bước
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== Dual Comparison ===== -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <h2><span class="icon">&#9876;</span> Đấu tay đôi (Dual Compare)</h2>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label class="form-label">Thuật toán đối thủ (Đỏ)</label>
+                        <select class="form-select" id="dual-algo-2">
+                            <option value="greedy" selected>Tham lam (Greedy)</option>
+                            <option value="astar">A* Search</option>
+                            <option value="dijkstra">Dijkstra</option>
+                            <option value="bfs">Breadth-First (BFS)</option>
+                            <option value="dfs">Depth-First (DFS)</option>
+                            <option value="ucs">Uniform Cost (UCS)</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-secondary" id="btn-dual-compare" style="width:100%; margin-top:0.4rem;" disabled>
+                        &#9876; So sánh 2 Thuật toán
+                    </button>
+                    <button class="btn btn-secondary" id="btn-compare" style="width:100%; margin-top:0.4rem;" disabled>
+                        &#128202; So sánh tất cả (6)
+                    </button>
+                </div>
+            </div>
+
+            <!-- ===== Playback Controls ===== -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <h2><span class="icon">&#127918;</span> Điều khiển</h2>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label class="form-label">Tốc độ Animation</label>
+                        <div class="speed-control">
+                            <span style="font-size:0.75rem;color:var(--text-muted)">&#128034;</span>
+                            <input type="range" class="speed-slider" id="speed-slider" min="50" max="2000" value="500" step="50">
+                            <span class="speed-value" id="speed-value">500ms</span>
+                            <span style="font-size:0.75rem;color:var(--text-muted)">&#128007;</span>
+                        </div>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-secondary" id="btn-prev-step" disabled>&#9198; Lùi</button>
+                        <button class="btn btn-secondary" id="btn-play-pause" disabled>&#9654;&#65039; Chạy</button>
+                        <button class="btn btn-secondary" id="btn-next-step"  disabled>Tiến &#9197;</button>
+                    </div>
+                    <!-- Running indicator -->
+                    <div class="algo-running-indicator" id="running-indicator" style="display:none; margin-top:0.5rem;"></div>
+
+                    <!-- Search Progress Bar -->
+                    <div class="search-progress-wrap" id="search-progress-wrap">
+                        <div class="search-progress-label">
+                            <span>Tiến trình</span>
+                            <span id="progress-pct">0%</span>
+                        </div>
+                        <div class="search-progress-bar">
+                            <div class="search-progress-fill" id="search-progress-fill"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== Statistics ===== -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <h2><span class="icon">&#128202;</span> Thống kê</h2>
+                </div>
+                <div class="card-body">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-icon">&#128207;</span>
+                            <div class="stat-value" id="stat-distance">--</div>
+                            <div class="stat-label">Khoảng cách (km)</div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-icon">&#9201;</span>
+                            <div class="stat-value" id="stat-time">--</div>
+                            <div class="stat-label">Thời gian TB 10 lần (ms)</div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-icon">&#128269;</span>
+                            <div class="stat-value" id="stat-explored">--</div>
+                            <div class="stat-label">Node đã duyệt</div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-icon">&#128260;</span>
+                            <div class="stat-value" id="stat-steps">--</div>
+                            <div class="stat-label">Số bước</div>
+                        </div>
+                    </div>
+
+                    <!-- Step Detail -->
+                    <div class="step-info" id="step-info" style="display:none; margin-top:0.5rem;">
+                        <div>Bước: <span class="step-number" id="step-num">0</span> / <span id="step-total">0</span></div>
+                        <div>Đang xét: <span class="step-current" id="step-current">--</span></div>
+                        <div>Chi phí: <span class="step-cost" id="step-cost">--</span> km</div>
+                    </div>
+
+                    <!-- Path Route Display -->
+                    <div class="path-route" id="path-route">
+                        <div class="path-route-label">&#128204; Hành trình</div>
+                        <div class="path-route-cities" id="path-route-cities"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== Legend ===== -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <h2><span class="icon">&#127912;</span> Chú thích</h2>
+                </div>
+                <div class="card-body">
+                    <div class="legend-grid">
+                        <div class="legend-item">
+                            <div class="legend-icon-wrap"><div class="l-icon start-icon"></div></div>
+                            <span>Điểm xuất phát</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-icon-wrap"><div class="l-icon end-icon"></div></div>
+                            <span>Điểm đích</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-icon-wrap"><div class="l-icon current-icon"></div></div>
+                            <span>Đang xét</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-icon-wrap"><div class="l-icon frontier-icon"></div></div>
+                            <span>Biên (Frontier)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-icon-wrap"><div class="l-icon visited-icon"></div></div>
+                            <span>Đã duyệt</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-icon-wrap"><div class="l-line path-line"></div></div>
+                            <span>Đường đi</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-icon-wrap"><div class="l-line block-line"></div></div>
+                            <span>Đường bị chặn</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-icon-wrap"><div class="l-line normal-line"></div></div>
+                            <span>Đường bình thường</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </aside>
+
+        <!-- ======== COMPARISON SECTION (Bottom) ======== -->
+        <section class="comparison-section glass-card" id="comparison-section" style="display:none">
+            <div class="card-header">
+                <h2><span class="icon">&#128202;</span> So sánh thuật toán</h2>
+                <button class="toolbar-btn" id="btn-close-compare">&#10005; Đóng</button>
+            </div>
+            <div class="comparison-content">
+                <div class="comparison-table-wrapper">
+                    <table class="comparison-table" id="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Thuật toán</th>
+                                <th>Loại</th>
+                                <th>Khoảng cách (km)</th>
+                                <th>Thời gian (ms)</th>
+                                <th>Node duyệt</th>
+                                <th>Số bước</th>
+                                <th>Đường đi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="comparison-tbody"></tbody>
+                    </table>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">&#128200; Biểu đồ so sánh hiệu suất</div>
+                    <div class="chart-canvas-wrapper">
+                        <canvas id="comparison-chart" width="450" height="280"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- ============================================================ -->
+    <!-- SCRIPTS                                                       -->
+    <!-- ============================================================ -->
+    <script src="js/map.js"></script>
+    <script src="js/algorithms.js"></script>
+    <script src="js/visualization.js"></script>
+    <script src="js/comparison.js"></script>
+    <script src="js/app.js"></script>
+
+    <!-- Algorithm Card Picker - sync with hidden select -->
+    <script>
+    (function() {
+        const algoSelect  = document.getElementById('algorithm-select');
+        const categoryTag = document.getElementById('algo-category-tag');
+        const cards       = document.querySelectorAll('.algo-card');
+
+        function activateCard(algo, type) {
+            cards.forEach(c => c.classList.remove('active', 'active-violet'));
+            const card = document.querySelector('.algo-card[data-algo="' + algo + '"]');
+            if (!card) return;
+            const cls  = type === 'blind' ? 'active-violet' : 'active';
+            card.classList.add(cls);
+            // Update category tag
+            if (type === 'blind') {
+                categoryTag.textContent = 'Blind';
+                categoryTag.className   = 'algo-type-tag blind';
+            } else {
+                categoryTag.textContent = 'Informed';
+                categoryTag.className   = 'algo-type-tag informed';
+            }
+        }
+
+        cards.forEach(function(card) {
+            card.addEventListener('click', function() {
+                const algo = card.dataset.algo;
+                const type = card.dataset.type;
+                algoSelect.value = algo;
+                algoSelect.dispatchEvent(new Event('change'));
+                activateCard(algo, type);
+            });
+        });
+
+        // Sync if hidden select changes externally
+        algoSelect.addEventListener('change', function() {
+            const algo = algoSelect.value;
+            const card = document.querySelector('.algo-card[data-algo="' + algo + '"]');
+            if (card) activateCard(algo, card.dataset.type);
+        });
+    })();
+    </script>
+
+    <!-- Path Route renderer & stat pop animation -->
+    <script>
+    (function() {
+        // Animate stat values when they update
+        const statIds = ['stat-distance', 'stat-time', 'stat-explored', 'stat-steps'];
+        statIds.forEach(function(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const obs = new MutationObserver(function() {
+                el.classList.remove('updated');
+                void el.offsetWidth; // reflow
+                el.classList.add('updated');
+            });
+            obs.observe(el, { childList: true, characterData: true, subtree: true });
+        });
+
+        // Listen for path result to render path route chips
+        window.renderPathRoute = function(cityNames) {
+            const routeEl   = document.getElementById('path-route');
+            const citiesEl  = document.getElementById('path-route-cities');
+            if (!routeEl || !citiesEl) return;
+            if (!cityNames || cityNames.length === 0) {
+                routeEl.classList.remove('visible');
+                return;
+            }
+            citiesEl.innerHTML = '';
+            cityNames.forEach(function(name, i) {
+                if (i > 0) {
+                    const arr = document.createElement('span');
+                    arr.className = 'path-arrow';
+                    arr.textContent = '›';
+                    citiesEl.appendChild(arr);
+                }
+                const chip = document.createElement('span');
+                chip.className = 'path-city-chip' +
+                    (i === 0 ? ' start-chip' : '') +
+                    (i === cityNames.length - 1 ? ' end-chip' : '');
+                chip.style.animationDelay = (i * 0.05) + 's';
+                chip.textContent = name;
+                citiesEl.appendChild(chip);
+            });
+            routeEl.classList.add('visible');
+        };
+
+        // Progress bar helper
+        window.setSearchProgress = function(pct) {
+            const wrap = document.getElementById('search-progress-wrap');
+            const fill = document.getElementById('search-progress-fill');
+            const pctEl = document.getElementById('progress-pct');
+            if (!wrap) return;
+            wrap.classList.toggle('visible', pct > 0 && pct < 100);
+            if (fill)  fill.style.width = Math.min(100, pct) + '%';
+            if (pctEl) pctEl.textContent = Math.min(100, Math.round(pct)) + '%';
+        };
+    })();
+    </script>
+</body>
+</html>
