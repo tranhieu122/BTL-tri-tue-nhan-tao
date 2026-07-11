@@ -167,13 +167,14 @@ const App = (() => {
         if (state.mode === 'obstacle' || state.mode === 'weight') return;
 
         if (!state.startCity) {
+            // Chưa có điểm đi -> gán làm điểm đi
             setStartCity(cityName);
-        } else if (!state.endCity && cityName !== state.startCity) {
-            setEndCity(cityName);
-        } else {
-            // Reset và chọn lại
+        } else if (cityName === state.startCity) {
+            // Click trùng vào điểm đi hiện tại -> xóa lựa chọn để chọn lại từ đầu
             clearSelection();
-            setStartCity(cityName);
+        } else {
+            // Đã có điểm đi và click vào tỉnh khác -> luôn gán/cập nhật làm điểm đích
+            setEndCity(cityName);
         }
     }
 
@@ -519,6 +520,31 @@ const App = (() => {
                 if (!state.isStepMode) {
                     Visualization.play();
                 }
+
+                // Hiển thị bảng và biểu đồ so sánh 2 thuật toán
+                const comparisonData = {
+                    results: [
+                        {
+                            algorithm: res1.algorithm || getAlgoDisplayName(algo1),
+                            type: res1.type || (algo1 === 'astar' || algo1 === 'greedy' ? 'informed' : 'blind'),
+                            path: res1.path || [],
+                            cost: res1.cost,
+                            explored_count: res1.explored_count || 0,
+                            steps_count: res1.exploration_steps ? res1.exploration_steps.length : 0,
+                            time_ms: res1.time_ms || 0
+                        },
+                        {
+                            algorithm: res2.algorithm || getAlgoDisplayName(algo2),
+                            type: res2.type || (algo2 === 'astar' || algo2 === 'greedy' ? 'informed' : 'blind'),
+                            path: res2.path || [],
+                            cost: res2.cost,
+                            explored_count: res2.explored_count || 0,
+                            steps_count: res2.exploration_steps ? res2.exploration_steps.length : 0,
+                            time_ms: res2.time_ms || 0
+                        }
+                    ]
+                };
+                Comparison.show(comparisonData);
             } else {
                 showToast('❌ Một trong 2 thuật toán không tìm được đường đi!', 'error');
             }

@@ -126,6 +126,14 @@ const VietnamMap = (() => {
                 }
             });
 
+            // Tooltip chỉ hiển thị số km dạng chữ chạy theo chuột (không có khung)
+            clickLine.bindTooltip(`${edge.distance} km`, {
+                sticky: true,
+                direction: 'top',
+                className: 'edge-hover-km',
+                opacity: 1
+            });
+
             // Click handler
             clickLine.on('click', (e) => {
                 L.DomEvent.stopPropagation(e);

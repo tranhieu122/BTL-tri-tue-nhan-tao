@@ -34,6 +34,80 @@ const Comparison = (() => {
 
         renderTable();
         renderChart();
+        generateAnalysis();
+    }
+
+    /**
+     * Nhận xét & phân tích học thuật tự động.
+     */
+    function generateAnalysis() {
+        const textEl = document.getElementById('comparison-analysis-text');
+        if (!textEl) return;
+
+        if (!comparisonData || comparisonData.length === 0) {
+            textEl.innerHTML = 'Không có dữ liệu để phân tích.';
+            return;
+        }
+
+        // Tìm các kết quả cụ thể
+        const astar = comparisonData.find(r => r.algorithm === 'A*');
+        const dijkstra = comparisonData.find(r => r.algorithm === 'Dijkstra');
+        const bfs = comparisonData.find(r => r.algorithm === 'BFS');
+        const dfs = comparisonData.find(r => r.algorithm === 'DFS');
+        const greedy = comparisonData.find(r => r.algorithm === 'Greedy');
+        const ucs = comparisonData.find(r => r.algorithm === 'UCS');
+
+        let html = '<ul style="padding-left: 1.25rem; margin-top: 0.25rem; display: flex; flex-direction: column; gap: 0.45rem; list-style-type: disc;">';
+
+        // 1. Phân tích về độ tối ưu đường đi (Optimality)
+        const optimalCost = astar && astar.cost > 0 ? astar.cost : (dijkstra && dijkstra.cost > 0 ? dijkstra.cost : -1);
+        if (optimalCost > 0) {
+            html += `<li><strong>Độ tối ưu đường đi (Optimality):</strong> `;
+            const optimalAlgos = comparisonData.filter(r => r.cost === optimalCost).map(r => r.algorithm);
+            html += `Đường đi ngắn nhất tối ưu từ điểm đi tới điểm đến là <strong>${optimalCost} km</strong>. `;
+            html += `Các thuật toán đảm bảo tính tối ưu (luôn tìm ra đúng độ dài này) gồm: <strong>${optimalAlgos.join(', ')}</strong>. `;
+            
+            let extra = [];
+            if (greedy && greedy.cost > optimalCost) {
+                extra.push(`<em>Greedy Best-First</em> chỉ tìm được đường dài <strong>${greedy.cost} km</strong> (lệch +${Math.round(greedy.cost - optimalCost)} km) do tính chất chỉ nhìn Heuristic cục bộ`);
+            }
+            if (bfs && bfs.cost > optimalCost) {
+                extra.push(`<em>BFS</em> tìm được đường dài <strong>${bfs.cost} km</strong> do tối ưu số cạnh đi qua chứ không tối ưu theo khoảng cách thực tế`);
+            }
+            if (dfs && dfs.cost > optimalCost) {
+                extra.push(`<em>DFS</em> đi vòng dài tới <strong>${dfs.cost} km</strong> vì duyệt ngẫu nhiên theo độ sâu mà không có bất kỳ ước lượng hay tối ưu nào`);
+            }
+            if (extra.length > 0) {
+                html += `Trong khi đó, ` + extra.join('; ') + `.`;
+            }
+            html += `</li>`;
+        }
+
+        // 2. Phân tích về số lượng node duyệt và không gian tìm kiếm (Search Space)
+        if (astar && dijkstra && astar.cost > 0 && dijkstra.cost > 0) {
+            html += `<li><strong>Không gian tìm kiếm (Số node đã duyệt):</strong> `;
+            html += `Thuật toán <strong>A*</strong> chỉ cần duyệt qua <strong>${astar.explored_count} tỉnh thành</strong>, trong khi <strong>Dijkstra</strong> phải duyệt tới <strong>${dijkstra.explored_count} tỉnh thành</strong> để tìm ra cùng một kết quả tối ưu. `;
+            const reduction = Math.round((dijkstra.explored_count - astar.explored_count) / dijkstra.explored_count * 100);
+            if (reduction > 0) {
+                html += `Nhờ sử dụng hàm đánh giá Heuristic kết hợp khoảng cách thực tế <code>f(n) = g(n) + h(n)</code>, A* đã <strong>giảm được ${reduction}% số lượng node phải duyệt</strong> so với Dijkstra (vốn duyệt lan tỏa tròn không định hướng).`;
+            } else {
+                html += `Do khoảng cách giữa hai tỉnh rất gần, không gian tìm kiếm của hai thuật toán tương đối tương đương nhau.`;
+            }
+            html += `</li>`;
+        }
+
+        // 3. Phân tích thuật toán tham lam (Greedy Best-First)
+        if (greedy && astar && greedy.cost > 0) {
+            html += `<li><strong>Đánh giá Greedy Best-First Search:</strong> `;
+            html += `Thuật toán này chỉ duyệt qua <strong>${greedy.explored_count} tỉnh thành</strong> (rất ít và nhanh), nhưng đường đi tìm được không tối ưu. Đây là ví dụ điển hình của việc đánh đổi giữa <em>tốc độ xử lý</em> và <em>chất lượng kết quả</em> trong Trí tuệ nhân tạo.</li>`;
+        }
+
+        // 4. Kết luận học thuật
+        html += `<li><strong>Kết luận học thuật:</strong> `;
+        html += `<strong>A* Search</strong> chứng minh được tính ưu việt tuyệt đối khi vừa thừa hưởng tính tối ưu (Complete &amp; Optimal) của Dijkstra/UCS, vừa có không gian tìm kiếm nhỏ gọn nhờ hàm Heuristic thông minh (Informed Search), tránh duyệt lan man các tỉnh nằm ngoài hướng đi.</li>`;
+
+        html += '</ul>';
+        textEl.innerHTML = html;
     }
 
     /**
