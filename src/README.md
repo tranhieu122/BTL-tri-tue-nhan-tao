@@ -28,8 +28,9 @@ Giao diện trực quan hóa và tương tác người dùng:
 
 > [!TIP]
 > Bạn có thể mở và chỉnh sửa trực quan các sơ đồ dưới đây bằng phần mềm Draw.io bằng cách mở các file:
-> * Sơ đồ luồng hệ thống: [system_flow.drawio](file:///c:/Users/thesh/Ki%201%202026-2027/Artificial%20Intelligence/src/draw.io/system_flow.drawio)
-> * Sơ đồ thuật toán tìm kiếm: [search_algorithm_flow.drawio](file:///c:/Users/thesh/Ki%201%202026-2027/Artificial%20Intelligence/src/draw.io/search_algorithm_flow.drawio)
+> * 1. Khởi động hệ thống: [02_system_startup.drawio](file:///c:/Users/thesh/Ki%201%202026-2027/Artificial%20Intelligence/src/draw.io/02_system_startup.drawio)
+> * 2. Luồng xử lý tìm đường: [03_pathfinding_process.drawio](file:///c:/Users/thesh/Ki%201%202026-2027/Artificial%20Intelligence/src/draw.io/03_pathfinding_process.drawio)
+> * 3. Thuật toán tìm kiếm A*: [01_astar.drawio](file:///c:/Users/thesh/Ki%201%202026-2027/Artificial%20Intelligence/src/draw.io/01_astar.drawio)
 
 Dưới đây là sơ đồ tương tác tuần tự giữa các thành phần khi hệ thống vận hành:
 
