@@ -1,0 +1,7 @@
+﻿algorithm,path,cost,expanded,generated,avg_time_ms
+DFS,S→A→B→D→C→E→G,12,7,10,0.0108
+BFS,S→A→C→E→G,10,8,8,0.0089
+IDS,S→A→C→E→G,10,36,36,0.0314
+Best-First,S→B→D→F→G,9,8,9,0.0131
+GBFS,S→B→D→F→G,9,6,9,0.0086
+A*,S→B→D→F→G,9,8,9,0.0171

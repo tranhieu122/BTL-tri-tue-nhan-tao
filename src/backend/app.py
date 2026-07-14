@@ -204,7 +204,7 @@ def compare_algorithms():
         coords = vietnam_graph.get_coords(city)
         end_coords = vietnam_graph.get_coords(end)
         if coords and end_coords:
-            return haversine_distance(coords[0], coords[1], end_coords[0], end_coords[1])
+            return haversine_distance(coords[0], coords[1], end_coords[0], end_coords[1]) * 0.6
         return 0
 
     results = []

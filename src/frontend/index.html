@@ -134,6 +134,13 @@
                     <select class="form-select" id="algorithm-select" style="display:none">
                         <optgroup label="Tìm kiếm có thông tin">
                             <option value="astar" selected>A* Search</option>
+                            <option value="greedy">Greedy Best-First</option>
+                        </optgroup>
+                        <optgroup label="Tìm kiếm mù">
+                            <option value="dijkstra">Dijkstra</option>
+                            <option value="bfs">Breadth-First (BFS)</option>
+                            <option value="dfs">Depth-First (DFS)</option>
+                            <option value="ucs">Uniform Cost (UCS)</option>
                         </optgroup>
                     </select>
 
@@ -143,6 +150,31 @@
                         <div class="algo-card active" data-algo="astar" data-type="informed">
                             <div class="algo-card-icon">A*</div>
                             <div class="algo-card-name">A* Search</div>
+                        </div>
+                        <div class="algo-card" data-algo="greedy" data-type="informed">
+                            <div class="algo-card-icon">G*</div>
+                            <div class="algo-card-name">Greedy</div>
+                        </div>
+                    </div>
+
+                    <!-- Visual Algo Picker: Blind -->
+                    <div class="algo-section-title" style="margin-top: 0.4rem;">Tìm kiếm mù</div>
+                    <div class="algo-cards" id="algo-cards-blind">
+                        <div class="algo-card" data-algo="dijkstra" data-type="blind">
+                            <div class="algo-card-icon">Dj</div>
+                            <div class="algo-card-name">Dijkstra</div>
+                        </div>
+                        <div class="algo-card" data-algo="bfs" data-type="blind">
+                            <div class="algo-card-icon">BF</div>
+                            <div class="algo-card-name">BFS</div>
+                        </div>
+                        <div class="algo-card" data-algo="dfs" data-type="blind">
+                            <div class="algo-card-icon">DF</div>
+                            <div class="algo-card-name">DFS</div>
+                        </div>
+                        <div class="algo-card" data-algo="ucs" data-type="blind">
+                            <div class="algo-card-icon">UC</div>
+                            <div class="algo-card-name">UCS</div>
                         </div>
                     </div>
 
@@ -248,7 +280,7 @@
                         <div class="stat-item">
                             <span class="stat-icon">&#9201;</span>
                             <div class="stat-value" id="stat-time">--</div>
-                            <div class="stat-label">Thời gian TB 10 lần (ms)</div>
+                            <div class="stat-label">Thời gian TB 3 lần (ms)</div>
                         </div>
                         <div class="stat-item">
                             <span class="stat-icon">&#128269;</span>
