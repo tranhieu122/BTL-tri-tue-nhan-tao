@@ -29,7 +29,7 @@ const Comparison = (() => {
         comparisonData = data.results || [];
 
         const section = document.getElementById('comparison-section');
-        section.style.display = 'block';
+        section.style.display = 'flex';
         section.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
         renderTable();
@@ -218,13 +218,13 @@ const Comparison = (() => {
         const barGap = chartWidth / algorithms.length;
 
         // Title
-        ctx.fillStyle = '#9898b8';
-        ctx.font = '11px Inter, sans-serif';
+        ctx.fillStyle = '#475569';
+        ctx.font = 'bold 11px Inter, sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText('Số node đã duyệt (ít hơn = hiệu quả hơn)', width / 2, 15);
 
         // Y-axis gridlines
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.06)';
         ctx.lineWidth = 1;
         const ySteps = 5;
         for (let i = 0; i <= ySteps; i++) {
@@ -236,7 +236,7 @@ const Comparison = (() => {
 
             // Y labels
             const val = Math.round(maxExplored * (1 - i / ySteps));
-            ctx.fillStyle = '#5a5a7a';
+            ctx.fillStyle = '#64748b';
             ctx.font = '10px Inter, sans-serif';
             ctx.textAlign = 'right';
             ctx.fillText(val.toString(), padding.left - 8, y + 4);
@@ -281,7 +281,7 @@ const Comparison = (() => {
             ctx.shadowBlur = 0;
 
             // Value on top
-            ctx.fillStyle = '#e8e8f0';
+            ctx.fillStyle = '#0f172a';
             ctx.font = 'bold 10px Inter, sans-serif';
             ctx.textAlign = 'center';
             ctx.fillText(exploredCounts[i].toString(), x + barWidth / 2, y - 6);
@@ -290,8 +290,8 @@ const Comparison = (() => {
             ctx.save();
             ctx.translate(x + barWidth / 2, padding.top + chartHeight + 12);
             ctx.rotate(-0.3);
-            ctx.fillStyle = '#9898b8';
-            ctx.font = '10px Inter, sans-serif';
+            ctx.fillStyle = '#475569';
+            ctx.font = '600 10px Inter, sans-serif';
             ctx.textAlign = 'center';
             ctx.fillText(algo, 0, 0);
             ctx.restore();
@@ -299,12 +299,12 @@ const Comparison = (() => {
             // Type badge
             const result = comparisonData[i];
             ctx.fillStyle = result.type === 'blind'
-                ? 'rgba(249, 115, 22, 0.6)'
-                : 'rgba(99, 102, 241, 0.6)';
-            ctx.font = '8px Inter, sans-serif';
+                ? '#d97706'
+                : '#2563eb';
+            ctx.font = 'bold 8px Inter, sans-serif';
             ctx.textAlign = 'center';
             ctx.fillText(
-                result.type === 'blind' ? 'Mù' : 'Có TT',
+                result.type === 'blind' ? 'MÙ' : 'CÓ TT',
                 x + barWidth / 2,
                 padding.top + chartHeight + 38
             );

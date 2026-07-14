@@ -100,7 +100,7 @@ const VietnamMap = (() => {
                 className: 'leaflet-edge blocked'
             } : {
                 color: 'rgba(99, 102, 241, 0.45)',
-                weight: 2.5,
+                weight: 1.8,
                 opacity: 1,
                 className: 'leaflet-edge'
             };
@@ -122,7 +122,7 @@ const VietnamMap = (() => {
             });
             clickLine.on('mouseout', () => {
                 if (!edge.blocked && !polyline.options.className?.includes('in-path')) {
-                    polyline.setStyle({ color: 'rgba(99, 102, 241, 0.45)', weight: 2.5 });
+                    polyline.setStyle({ color: 'rgba(99, 102, 241, 0.45)', weight: 1.8 });
                 }
             });
 
@@ -180,11 +180,11 @@ const VietnamMap = (() => {
             const isSpecial = node.type === 'special_zone';
 
             const marker = L.circleMarker([node.lat, node.lng], {
-                radius: isSpecial ? 5 : 6,
+                radius: isSpecial ? 4 : 4.8,
                 fillColor: '#ffffff',
                 fillOpacity: 1,
                 color: '#70757a',
-                weight: 2,
+                weight: 1.8,
                 className: 'leaflet-city-marker'
             }).addTo(nodesLayer);
 
@@ -366,7 +366,7 @@ const VietnamMap = (() => {
         // Draw inner line (Google Maps Blue)
         pathPolyline = L.polyline(latlngs, {
             color: '#3b82f6', // Bright blue
-            weight: 4,
+            weight: 3,
             opacity: 1,
             lineCap: 'round',
             lineJoin: 'round',
@@ -621,7 +621,7 @@ const VietnamMap = (() => {
                 const key = edgeKey(edge.from, edge.to);
                 const polyline = edgePolylines[key];
                 if (polyline) {
-                    polyline.setStyle({ color: 'rgba(99, 102, 241, 0.45)', weight: 2.5, opacity: 1, dashArray: null });
+                    polyline.setStyle({ color: 'rgba(99, 102, 241, 0.45)', weight: 1.8, opacity: 1, dashArray: null });
                 }
             }
         });

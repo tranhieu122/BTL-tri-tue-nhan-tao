@@ -135,23 +135,23 @@ def pathfind():
     if algo_name in INFORMED_ALGORITHMS:
         result = algo_func(adj, start, end, heuristic, blocked_edges)
         
-        # Chạy thêm 9 lần nữa để tính thời gian trung bình (vì thời gian quá nhỏ)
+        # Chạy thêm 2 lần nữa để tính thời gian trung bình (vì thời gian quá nhỏ)
         start_time = time.perf_counter()
-        for _ in range(9):
+        for _ in range(2):
             algo_func(adj, start, end, heuristic, blocked_edges)
         end_time = time.perf_counter()
     else:
         result = algo_func(adj, start, end, None, blocked_edges)
         
-        # Chạy thêm 9 lần nữa để tính thời gian trung bình
+        # Chạy thêm 2 lần nữa để tính thời gian trung bình
         start_time = time.perf_counter()
-        for _ in range(9):
+        for _ in range(2):
             algo_func(adj, start, end, None, blocked_edges)
         end_time = time.perf_counter()
 
     # Tính trung bình (bao gồm cả lần chạy đầu tiên đã có thời gian trong result['time_ms'])
     total_time_ms = result.get('time_ms', 0) + ((end_time - start_time) * 1000)
-    avg_time_ms = total_time_ms / 10.0
+    avg_time_ms = total_time_ms / 3.0
     result['time_ms'] = round(avg_time_ms, 4)
 
     # Lưu lịch sử
@@ -208,7 +208,7 @@ def compare_algorithms():
         return 0
 
     results = []
-    num_runs = 10
+    num_runs = 3
     
     for algo_name, algo_func in ALGORITHMS.items():
         total_time_ms = 0

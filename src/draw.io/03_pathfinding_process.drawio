@@ -1,0 +1,82 @@
+<mxfile host="Electron" agent="Mozilla/5.0">
+  <diagram id="pathfinding_process" name="Luồng xử lý tìm đường">
+    <mxGraphModel dx="1717" dy="1043" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=16;fontStyle=1;fontColor=#1A237E;" value="SƠ ĐỒ LUỒNG XỬ LÝ TÌM KIẾM ĐƯỜNG ĐI" vertex="1">
+          <mxGeometry height="30" width="350" x="255" y="15" as="geometry" />
+        </mxCell>
+        <mxCell id="p1" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontStyle=1;fontSize=11;" value="① BẮT ĐẦU" vertex="1">
+          <mxGeometry height="50" width="160" x="340" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="p2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=11;" value="② Người dùng click bản đồ để chọn&lt;br&gt;Điểm đi (Start) &amp;amp; Điểm đến (End)" vertex="1">
+          <mxGeometry height="50" width="240" x="300" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="p3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=11;" value="③ Chọn thuật toán tìm đường&lt;br&gt;và chặn các tuyến đường (nếu có)" vertex="1">
+          <mxGeometry height="50" width="240" x="300" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="p4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontStyle=1;fontSize=11;" value="④ Người dùng bấm nút &#39;TÌM ĐƯỜNG&#39;" vertex="1">
+          <mxGeometry height="45" width="200" x="320" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="p5" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#E65100;fontSize=11;" value="⑤ Frontend gửi HTTP POST request tới /api/pathfind&lt;br&gt;(gửi kèm: Start, End, Algo, Blocked)" vertex="1">
+          <mxGeometry height="50" width="300" x="270" y="400" as="geometry" />
+        </mxCell>
+        <mxCell id="p6" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1565C0;fontSize=11;" value="⑥ Backend nhận request, cập nhật chướng ngại vật&lt;br&gt;tạm thời vào Đồ thị NetworkX trong bộ nhớ" vertex="1">
+          <mxGeometry height="50" width="290" x="275" y="480" as="geometry" />
+        </mxCell>
+        <mxCell id="p7" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#283593;fontStyle=1;fontSize=11;" value="⑦ Thực thi thuật toán được chọn (ví dụ A*)&lt;br&gt;Ghi lại toàn bộ các bước duyệt đồ thị" vertex="1">
+          <mxGeometry height="50" width="300" x="270" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="p8" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=12;fillColor=#FFF9C4;strokeColor=#F9A825;fontSize=11;" value="⑧ Đo thời gian trung bình (chạy 10 lần)&lt;br&gt;và ghi lại kết quả vào SQLite (bảng search_history)" vertex="1">
+          <mxGeometry height="75" width="260" x="290" y="640" as="geometry" />
+        </mxCell>
+        <mxCell id="p9" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1565C0;fontSize=11;" value="⑨ Server gửi kết quả JSON về lại cho Frontend&lt;br&gt;(đường đi ngắn nhất, chi phí, các bước duyệt, time)" vertex="1">
+          <mxGeometry height="50" width="280" x="280" y="750" as="geometry" />
+        </mxCell>
+        <mxCell id="p10" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#E65100;fontSize=11;" value="⑩ Frontend (visualization.js) chạy hoạt ảnh mô phỏng&lt;br&gt;từng bước dò đường trên bản đồ SVG của giao diện" vertex="1">
+          <mxGeometry height="50" width="300" x="270" y="830" as="geometry" />
+        </mxCell>
+        <mxCell id="p11" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#E65100;fontStyle=1;fontSize=11;" value="⑪ Vẽ đường đi tối ưu hoàn chỉnh bằng màu xanh&lt;br&gt;Hiển thị bảng số liệu &amp;amp; Báo cáo phân tích hiệu suất" vertex="1">
+          <mxGeometry height="50" width="300" x="270" y="910" as="geometry" />
+        </mxCell>
+        <mxCell id="p12" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontStyle=1;fontSize=11;" value="⑫ HOÀN TẤT TÌM KIẾM" vertex="1">
+          <mxGeometry height="50" width="160" x="340" y="990" as="geometry" />
+        </mxCell>
+        <mxCell id="ep1" edge="1" parent="1" source="p1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="p2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ep2" edge="1" parent="1" source="p2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="p3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ep3" edge="1" parent="1" source="p3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="p4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ep4" edge="1" parent="1" source="p4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="p5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ep5" edge="1" parent="1" source="p5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="p6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ep6" edge="1" parent="1" source="p6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="p7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ep7" edge="1" parent="1" source="p7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="p8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ep8" edge="1" parent="1" source="p8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="p9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ep9" edge="1" parent="1" source="p9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="p10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ep10" edge="1" parent="1" source="p10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="p11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ep11" edge="1" parent="1" source="p11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="p12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

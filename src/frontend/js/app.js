@@ -502,58 +502,121 @@ const App = (() => {
             ]);
 
             if (res1.path && res2.path) {
-                // Draw secondary path first (so it's underneath or clearly distinguishable)
-                VietnamMap.drawSecondaryPath(res2.path);
-                
-                // Then animate/draw primary path
-                Visualization.init(res1, {
-                    onStepUpdate: (step, index, total) => {
-                        document.getElementById('step-num').textContent = index + 1;
-                        document.getElementById('step-current').textContent = step.current;
-                        document.getElementById('step-cost').textContent = step.current_cost;
-                    },
-                    onComplete: (path) => {
-                        showToast(`✅ Đã vẽ xong. Xanh: ${getAlgoDisplayName(algo1)}, Đỏ: ${getAlgoDisplayName(algo2)}`, 'success');
-                    }
-                });
+                let runCount1 = 0;
+                let runCount2 = 0;
+                const MAX_RUNS = 3;
 
-                if (!state.isStepMode) {
-                    Visualization.play();
+                function runAlgo2() {
+                    if (runCount2 >= MAX_RUNS) {
+                        showToast(`✅ Đã vẽ xong. Xanh: ${getAlgoDisplayName(algo2)}, Đỏ: ${getAlgoDisplayName(algo1)}`, 'success');
+                        
+                        // Hiển thị bảng và biểu đồ so sánh 2 thuật toán
+                        const comparisonData = {
+                            results: [
+                                {
+                                    algorithm: res1.algorithm || getAlgoDisplayName(algo1),
+                                    type: res1.type || (algo1 === 'astar' || algo1 === 'greedy' ? 'informed' : 'blind'),
+                                    path: res1.path || [],
+                                    cost: res1.cost,
+                                    explored_count: res1.explored_count || 0,
+                                    steps_count: res1.exploration_steps ? res1.exploration_steps.length : 0,
+                                    time_ms: res1.time_ms || 0
+                                },
+                                {
+                                    algorithm: res2.algorithm || getAlgoDisplayName(algo2),
+                                    type: res2.type || (algo2 === 'astar' || algo2 === 'greedy' ? 'informed' : 'blind'),
+                                    path: res2.path || [],
+                                    cost: res2.cost,
+                                    explored_count: res2.explored_count || 0,
+                                    steps_count: res2.exploration_steps ? res2.exploration_steps.length : 0,
+                                    time_ms: res2.time_ms || 0
+                                }
+                            ]
+                        };
+                        Comparison.show(comparisonData);
+                        
+                        state.isRunning = false;
+                        updateButtons();
+                        return;
+                    }
+                    
+                    runCount2++;
+                    showToast(`⏳ Đang chạy ${getAlgoDisplayName(algo2)} (Lần ${runCount2}/${MAX_RUNS})...`, 'info');
+                    
+                    Visualization.init(res2, {
+                        onStepUpdate: (step, index, total) => {
+                            document.getElementById('step-num').textContent = index + 1;
+                            document.getElementById('step-current').textContent = step.current;
+                            document.getElementById('step-cost').textContent = step.current_cost;
+                        },
+                        onComplete: (path) => {
+                            if (runCount2 < MAX_RUNS) {
+                                setTimeout(runAlgo2, 1000); // Nghỉ 1s trước khi chạy lại
+                            } else {
+                                runAlgo2(); // Kết thúc
+                            }
+                        }
+                    });
+                    
+                    // Vẽ lại đường đi thuật toán 1 làm nền (màu đỏ đứt nét) sau khi init đã clear map
+                    VietnamMap.drawSecondaryPath(res1.path);
+                    
+                    if (!state.isStepMode) {
+                        Visualization.play();
+                    } else {
+                        state.isRunning = true;
+                        updateButtons();
+                    }
                 }
 
-                // Hiển thị bảng và biểu đồ so sánh 2 thuật toán
-                const comparisonData = {
-                    results: [
-                        {
-                            algorithm: res1.algorithm || getAlgoDisplayName(algo1),
-                            type: res1.type || (algo1 === 'astar' || algo1 === 'greedy' ? 'informed' : 'blind'),
-                            path: res1.path || [],
-                            cost: res1.cost,
-                            explored_count: res1.explored_count || 0,
-                            steps_count: res1.exploration_steps ? res1.exploration_steps.length : 0,
-                            time_ms: res1.time_ms || 0
+                function runAlgo1() {
+                    if (runCount1 >= MAX_RUNS) {
+                        showToast(`⏳ Đã xong thuật toán 1. Đợi 2.5s để xem kết quả thuật toán 2...`, 'info');
+                        setTimeout(() => {
+                            runAlgo2();
+                        }, 2500);
+                        return;
+                    }
+                    
+                    runCount1++;
+                    showToast(`▶️ Đang chạy ${getAlgoDisplayName(algo1)} (Lần ${runCount1}/${MAX_RUNS})...`, 'info');
+                    
+                    Visualization.init(res1, {
+                        onStepUpdate: (step, index, total) => {
+                            document.getElementById('step-num').textContent = index + 1;
+                            document.getElementById('step-current').textContent = step.current;
+                            document.getElementById('step-cost').textContent = step.current_cost;
                         },
-                        {
-                            algorithm: res2.algorithm || getAlgoDisplayName(algo2),
-                            type: res2.type || (algo2 === 'astar' || algo2 === 'greedy' ? 'informed' : 'blind'),
-                            path: res2.path || [],
-                            cost: res2.cost,
-                            explored_count: res2.explored_count || 0,
-                            steps_count: res2.exploration_steps ? res2.exploration_steps.length : 0,
-                            time_ms: res2.time_ms || 0
+                        onComplete: (path) => {
+                            if (runCount1 < MAX_RUNS) {
+                                setTimeout(runAlgo1, 1000); // Nghỉ 1s trước khi chạy lại
+                            } else {
+                                runAlgo1(); // Để chuyển sang bước tiếp theo
+                            }
                         }
-                    ]
-                };
-                Comparison.show(comparisonData);
+                    });
+
+                    if (!state.isStepMode) {
+                        Visualization.play();
+                    } else {
+                        state.isRunning = true;
+                        updateButtons();
+                    }
+                }
+                
+                // Bắt đầu chạy thuật toán 1
+                runAlgo1();
+
             } else {
                 showToast('❌ Một trong 2 thuật toán không tìm được đường đi!', 'error');
+                state.isRunning = false;
+                updateButtons();
             }
         } catch (error) {
             showToast(`❌ Lỗi: ${error.message}`, 'error');
+            state.isRunning = false;
+            updateButtons();
         }
-
-        state.isRunning = false;
-        updateButtons();
     }
 
     /**
