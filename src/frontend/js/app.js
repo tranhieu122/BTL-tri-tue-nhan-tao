@@ -11,7 +11,8 @@ const App = (() => {
         mode: 'select',      // 'select' | 'obstacle' | 'weight'
         isStepMode: false,
         isRunning: false,
-        graphLoaded: false
+        graphLoaded: false,
+        lastResult: null
     };
 
     /**
@@ -99,6 +100,17 @@ const App = (() => {
         document.getElementById('btn-compare').addEventListener('click', compareAll);
         document.getElementById('btn-dual-compare').addEventListener('click', dualCompare);
         document.getElementById('btn-close-compare').addEventListener('click', () => Comparison.hide());
+        document.getElementById('comparison-metric').addEventListener('change', (event) => Comparison.renderChart(event.target.value));
+        document.getElementById('btn-export-comparison').addEventListener('click', () => {
+            if (Comparison.exportCsv()) showToast('&#128190; Đã xuất dữ liệu so sánh dạng CSV', 'success');
+        });
+
+        // ---- Demo scenarios & search history ----
+        document.getElementById('scenario-select').addEventListener('change', applyScenario);
+        document.getElementById('btn-refresh-history').addEventListener('click', loadHistory);
+        document.getElementById('btn-random-route').addEventListener('click', createRandomRoute);
+        document.getElementById('algorithm-select').addEventListener('change', updateAlgorithmInsight);
+        document.getElementById('btn-route-insights').addEventListener('click', loadRouteInsights);
 
         // ---- Tools ----
         document.getElementById('btn-random-blocks').addEventListener('click', generateRandomBlocks);
@@ -158,6 +170,121 @@ const App = (() => {
                 searchResults.classList.remove('visible');
             }
         });
+
+        loadHistory();
+        updateAlgorithmInsight();
+    }
+
+    const ALGORITHM_INSIGHTS = {
+        astar: {
+            symbol: 'f(n) = g(n) + h(n)', badge: 'Optimal',
+            title: 'A* Search: tối ưu với heuristic admissible',
+            text: 'Kết hợp chi phí đã đi và ước lượng đến đích để thu hẹp không gian tìm kiếm.'
+        },
+        greedy: {
+            symbol: 'f(n) = h(n)', badge: 'Nhanh',
+            title: 'Greedy Best-First: ưu tiên điểm gần đích',
+            text: 'Chỉ dùng heuristic nên thường duyệt ít node, nhưng không đảm bảo đường đi ngắn nhất.'
+        },
+        dijkstra: {
+            symbol: 'f(n) = g(n)', badge: 'Optimal',
+            title: 'Dijkstra: chuẩn tối ưu trọng số dương',
+            text: 'Mở rộng theo tổng chi phí nhỏ nhất và luôn tìm được đường tối ưu với cạnh có trọng số không âm.'
+        },
+        bfs: {
+            symbol: 'FIFO Queue', badge: 'Đủ',
+            title: 'BFS: tối ưu số cạnh, không tối ưu km',
+            text: 'Duyệt theo từng lớp nên tìm đường ít chặng nhất, nhưng không phù hợp khi mỗi cạnh có khoảng cách khác nhau.'
+        },
+        dfs: {
+            symbol: 'LIFO Stack', badge: 'Khám phá',
+            title: 'DFS: đi sâu trước, không đảm bảo tối ưu',
+            text: 'Tốn ít bộ nhớ hơn nhưng thứ tự duyệt có thể tạo ra đường vòng và bỏ lỡ phương án tốt hơn.'
+        },
+        ucs: {
+            symbol: 'Priority Queue: g(n)', badge: 'Optimal',
+            title: 'Uniform Cost Search: ưu tiên chi phí thực',
+            text: 'Tương đương Dijkstra trên đồ thị này; đảm bảo tối ưu khi trọng số cạnh dương.'
+        }
+    };
+
+    function updateAlgorithmInsight() {
+        const algorithm = document.getElementById('algorithm-select').value;
+        const insight = ALGORITHM_INSIGHTS[algorithm];
+        if (!insight) return;
+        document.getElementById('algo-insight-symbol').textContent = insight.symbol;
+        document.getElementById('algo-insight-badge').textContent = insight.badge;
+        document.getElementById('algo-insight-title').textContent = insight.title;
+        document.getElementById('algo-insight-text').textContent = insight.text;
+    }
+
+    const DEMO_SCENARIOS = {
+        'north-south': { start: 'Hà Nội', end: 'Hồ Chí Minh', label: 'Hành trình Bắc - Nam' },
+        'capital-central': { start: 'Hà Nội', end: 'Đà Nẵng', label: 'Thủ đô - miền Trung' },
+        'mekong': { start: 'Cần Thơ', end: 'Cà Mau', label: 'Khám phá miền Tây' }
+    };
+
+    function applyScenario(event) {
+        const scenario = DEMO_SCENARIOS[event.target.value];
+        if (!scenario) return;
+
+        clearSelection();
+        setStartCity(scenario.start);
+        setEndCity(scenario.end);
+        showToast(`&#127891; Đã nạp kịch bản: ${scenario.label}`, 'success');
+    }
+
+    function createRandomRoute() {
+        const cities = VietnamMap.getCityNames();
+        if (cities.length < 2) return;
+
+        const start = cities[Math.floor(Math.random() * cities.length)];
+        let end = cities[Math.floor(Math.random() * cities.length)];
+        while (end === start) end = cities[Math.floor(Math.random() * cities.length)];
+
+        clearSelection();
+        setStartCity(start);
+        setEndCity(end);
+        document.getElementById('scenario-select').value = '';
+        showToast(`&#127922; Tuyến thử thách: ${start} → ${end}`, 'info');
+    }
+
+    async function loadHistory() {
+        const list = document.getElementById('history-list');
+        const summary = document.getElementById('history-summary');
+        list.innerHTML = '<div class="history-empty">Đang tải lịch sử...</div>';
+
+        try {
+            const { history } = await AlgorithmsAPI.getHistory(8);
+            summary.textContent = history.length
+                ? `${history.length} lượt chạy gần nhất`
+                : 'Chưa có lượt chạy được lưu';
+
+            if (!history.length) {
+                list.innerHTML = '<div class="history-empty">Kết quả tìm đường sẽ xuất hiện tại đây.</div>';
+                return;
+            }
+
+            list.innerHTML = '';
+            history.forEach(item => {
+                const row = document.createElement('button');
+                row.type = 'button';
+                row.className = 'history-item';
+                row.innerHTML = `
+                    <span class="history-route">${item.start_city} <span>&rarr;</span> ${item.end_city}</span>
+                    <span class="history-meta">${item.algorithm} &bull; ${Number(item.distance).toFixed(1)} km &bull; ${item.nodes_explored} node</span>
+                `;
+                row.addEventListener('click', () => {
+                    clearSelection();
+                    setStartCity(item.start_city);
+                    setEndCity(item.end_city);
+                    showToast(`&#128193; Đã nạp lại lượt chạy ${item.algorithm}`, 'info');
+                });
+                list.appendChild(row);
+            });
+        } catch (error) {
+            list.innerHTML = '<div class="history-empty">Không tải được lịch sử truy vấn.</div>';
+        }
     }
 
     /**
@@ -326,22 +453,14 @@ const App = (() => {
      * Tạo chướng ngại vật ngẫu nhiên.
      */
     function generateRandomBlocks() {
-        const cityNames = VietnamMap.getCityNames();
-        let blockCount = 0;
-        
-        // Randomly pick about 15% of total edges
-        // But since we can only toggle by selecting from and to, we'll just pick random pairs
-        for (let i = 0; i < 10; i++) {
-            const idx1 = Math.floor(Math.random() * cityNames.length);
-            let idx2 = Math.floor(Math.random() * cityNames.length);
-            while (idx2 === idx1) {
-                idx2 = Math.floor(Math.random() * cityNames.length);
-            }
-            // Try to block
-            VietnamMap.toggleEdgeBlock(cityNames[idx1], cityNames[idx2], true);
-            blockCount++;
+        const availableEdges = VietnamMap.getAvailableEdges();
+        const blockCount = Math.min(10, availableEdges.length);
+        for (let index = 0; index < blockCount; index++) {
+            const selectedIndex = Math.floor(Math.random() * availableEdges.length);
+            const [edge] = availableEdges.splice(selectedIndex, 1);
+            VietnamMap.toggleEdgeBlock(edge.from, edge.to, true);
         }
-        showToast(`🎲 Đã rải ngẫu nhiên các chướng ngại vật trên bản đồ!`, 'info');
+        showToast(`🎲 Đã chặn ngẫu nhiên ${blockCount} tuyến đường có thật trên bản đồ`, 'info');
     }
 
     /**
@@ -371,6 +490,7 @@ const App = (() => {
 
         // Reset visualization
         Visualization.reset();
+        resetMapTrace();
         VietnamMap.resetAllStates();
         VietnamMap.setNodeState(state.startCity, 'start');
         VietnamMap.setNodeState(state.endCity, 'end');
@@ -383,8 +503,12 @@ const App = (() => {
             );
 
             if (result.path && result.path.length > 0) {
+                state.lastResult = result;
+                startMapTrace(result, algorithm);
                 // Cập nhật statistics
                 updateStats(result);
+                document.getElementById('btn-route-insights').disabled = false;
+                loadRouteInsights();
 
                 // Khởi tạo visualization
                 const totalSteps = Visualization.init(result, {
@@ -392,8 +516,10 @@ const App = (() => {
                         document.getElementById('step-num').textContent = index + 1;
                         document.getElementById('step-current').textContent = step.current;
                         document.getElementById('step-cost').textContent = step.current_cost;
+                        updateMapTraceStep(step, index, total);
                     },
                     onComplete: (path) => {
+                        completeMapTrace(result);
                         showToast(`✅ Tìm thấy đường đi! ${result.cost} km, ${result.explored_count} node duyệt`, 'success');
                     }
                 });
@@ -405,6 +531,7 @@ const App = (() => {
                     // Chạy tự động
                     Visualization.play();
                 }
+                loadHistory();
             } else {
                 showToast('❌ Không tìm được đường đi! Có thể do chướng ngại vật.', 'error');
                 updateStats({ cost: -1, time_ms: result.time_ms, explored_count: result.explored_count, exploration_steps: result.exploration_steps });
@@ -457,13 +584,18 @@ const App = (() => {
      */
     function resetAll() {
         Visualization.reset();
+        resetMapTrace();
         clearSelection();
         Comparison.hide();
         resetStats();
         state.isStepMode = false;
+        state.lastResult = null;
         document.getElementById('btn-step-mode').classList.remove('active');
         document.getElementById('btn-step-mode').innerHTML = '👣 Từng bước';
         document.getElementById('step-info').style.display = 'none';
+        document.getElementById('run-report').style.display = 'none';
+        document.getElementById('resilience-report').style.display = 'none';
+        document.getElementById('btn-route-insights').disabled = true;
         showToast('↺ Đã reset tất cả', 'info');
     }
 
@@ -634,6 +766,87 @@ const App = (() => {
         animateStat('stat-time', result.time_ms ? result.time_ms.toFixed(4) : '--');
         animateStat('stat-explored', result.explored_count || '--');
         animateStat('stat-steps', result.exploration_steps ? result.exploration_steps.length : '--');
+        renderRunReport(result);
+    }
+
+    function startMapTrace(result, algorithm) {
+        const trace = document.getElementById('map-trace');
+        trace.classList.add('visible');
+        document.getElementById('trace-state').textContent = getAlgoDisplayName(algorithm);
+        document.getElementById('trace-current').textContent = 'Đang khởi tạo không gian tìm kiếm';
+        document.getElementById('trace-step').textContent = `0 / ${(result.exploration_steps || []).length}`;
+        document.getElementById('trace-frontier').textContent = '0';
+        document.getElementById('trace-visited').textContent = '0';
+        document.getElementById('trace-score-label').textContent = algorithm === 'astar' || algorithm === 'greedy' ? 'f(n)' : 'g(n)';
+        document.getElementById('trace-score').textContent = '0 km';
+    }
+
+    function updateMapTraceStep(step, index, total) {
+        document.getElementById('trace-current').textContent = `Đang mở rộng: ${step.current}`;
+        document.getElementById('trace-step').textContent = `${index + 1} / ${total}`;
+        document.getElementById('trace-frontier').textContent = step.frontier.length;
+        document.getElementById('trace-visited').textContent = step.visited.length;
+        const score = step.f_cost ?? step.current_cost;
+        document.getElementById('trace-score').textContent = `${score} km`;
+    }
+
+    function completeMapTrace(result) {
+        document.getElementById('trace-state').textContent = 'Đã tìm thấy';
+        document.getElementById('trace-current').textContent = `Lộ trình tối ưu: ${result.path.length} điểm dừng`;
+        document.getElementById('trace-score').textContent = `${result.cost} km`;
+    }
+
+    function resetMapTrace() {
+        const trace = document.getElementById('map-trace');
+        trace.classList.remove('visible');
+        document.getElementById('trace-state').textContent = 'Sẵn sàng';
+    }
+
+    function renderRunReport(result) {
+        const report = document.getElementById('run-report');
+        const body = document.getElementById('run-report-body');
+        const route = (result.path || []).join(' → ');
+        const rows = [
+            ['Thuật toán', result.algorithm || getAlgoDisplayName(document.getElementById('algorithm-select').value)],
+            ['Tuyến đường', route],
+            ['Khoảng cách', `${result.cost} km`],
+            ['Thời gian TB', `${result.time_ms.toFixed(4)} ms`],
+            ['Node đã duyệt', result.explored_count],
+            ['Số bước', (result.exploration_steps || []).length]
+        ];
+
+        body.innerHTML = rows.map(([label, value]) => `<tr><th>${label}</th><td>${value}</td></tr>`).join('');
+        report.style.display = 'block';
+    }
+
+    async function loadRouteInsights() {
+        if (!state.startCity || !state.endCity) return;
+
+        const report = document.getElementById('resilience-report');
+        const summary = document.getElementById('resilience-summary');
+        const body = document.getElementById('resilience-body');
+        const button = document.getElementById('btn-route-insights');
+        button.disabled = true;
+        report.style.display = 'block';
+        summary.textContent = 'Đang mô phỏng sự cố từng đoạn đường...';
+        body.innerHTML = '';
+
+        try {
+            const insights = await AlgorithmsAPI.getRouteInsights(
+                state.startCity, state.endCity, VietnamMap.getBlockedEdges()
+            );
+            summary.textContent = `Đã kiểm tra ${insights.tested_links} đoạn trên lộ trình ${insights.baseline_cost} km`;
+            body.innerHTML = insights.critical_links.map(link => {
+                const impact = link.alternative_cost < 0
+                    ? '<span class="risk-badge risk-high">Mất kết nối</span>'
+                    : `<span class="risk-badge risk-medium">+${link.extra_distance} km đường vòng</span>`;
+                return `<tr><th>${link.from} → ${link.to}</th><td>${impact}</td></tr>`;
+            }).join('');
+        } catch (error) {
+            summary.textContent = `Không thể phân tích: ${error.message}`;
+        } finally {
+            button.disabled = false;
+        }
     }
 
     /**

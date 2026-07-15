@@ -247,6 +247,27 @@
 .map-tooltip .tooltip-city { font-weight: 700; color: #1a73e8; }
 .map-tooltip .tooltip-coords { color: #5f6368; font-size: 0.65rem; margin-top: 2px; font-family: 'Fira Code', monospace; }
 
+/* ---- Live algorithm trace ---- */
+.map-trace {
+    position: absolute; right: 1rem; bottom: 1.15rem; z-index: 900;
+    width: min(290px, calc(100% - 2rem)); padding: 0.75rem 0.8rem;
+    background: rgba(255, 255, 255, 0.93); backdrop-filter: blur(14px);
+    border: 1px solid rgba(15, 23, 42, 0.12); border-top: 3px solid #2563eb;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.14);
+    opacity: 0; transform: translateY(10px); pointer-events: none;
+    transition: opacity 180ms ease, transform 180ms ease;
+}
+.map-trace.visible { opacity: 1; transform: translateY(0); }
+.map-trace-head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.trace-kicker { color: #64748b; font: 800 0.6rem var(--font-mono); letter-spacing: 0.08em; }
+.trace-state { color: #1d4ed8; background: #eff6ff; border: 1px solid #bfdbfe; padding: 0.12rem 0.35rem; font-size: 0.58rem; font-weight: 800; }
+.trace-current { color: #0f172a; font-size: 0.82rem; font-weight: 800; margin: 0.42rem 0 0.58rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.trace-metrics { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid rgba(15, 23, 42, 0.08); }
+.trace-metrics div { min-width: 0; padding: 0.45rem 0.38rem 0 0; }
+.trace-metrics div + div { border-left: 1px solid rgba(15, 23, 42, 0.08); padding-left: 0.38rem; }
+.trace-metrics span { display: block; color: #64748b; font-size: 0.55rem; font-weight: 700; text-transform: uppercase; }
+.trace-metrics strong { display: block; overflow: hidden; color: #0f172a; font: 700 0.64rem var(--font-mono); margin-top: 0.12rem; text-overflow: ellipsis; white-space: nowrap; }
+
 /* Làm mượt tooltip khoảng cách (edge hover) chạy theo chuột */
 .leaflet-tooltip {
     transition: transform 0.15s linear, opacity 0.2s ease !important;

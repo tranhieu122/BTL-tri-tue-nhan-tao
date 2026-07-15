@@ -5,6 +5,14 @@
 
 const Comparison = (() => {
     let comparisonData = null;
+    let activeMetric = 'explored';
+
+    const CHART_METRICS = {
+        explored: { label: 'Số node đã duyệt (ít hơn = hiệu quả hơn)', key: 'explored_count', format: value => value.toString() },
+        cost: { label: 'Khoảng cách đường đi (km)', key: 'cost', format: value => value > 0 ? `${value.toFixed(1)} km` : 'N/A' },
+        time: { label: 'Thời gian chạy trung bình (ms)', key: 'time_ms', format: value => `${value.toFixed(4)} ms` },
+        steps: { label: 'Số bước thuật toán', key: 'steps_count', format: value => value.toString() }
+    };
 
     // Màu sắc cho từng thuật toán
     const ALGO_COLORS = {
@@ -185,9 +193,11 @@ const Comparison = (() => {
     /**
      * Render biểu đồ bar chart so sánh.
      */
-    function renderChart() {
+    function renderChart(metricName = activeMetric) {
         const canvas = document.getElementById('comparison-chart');
         const ctx = canvas.getContext('2d');
+        activeMetric = CHART_METRICS[metricName] ? metricName : 'explored';
+        const metric = CHART_METRICS[activeMetric];
 
         // Set canvas size (high DPI)
         const dpr = window.devicePixelRatio || 1;
@@ -211,8 +221,8 @@ const Comparison = (() => {
         const chartHeight = height - padding.top - padding.bottom;
 
         const algorithms = comparisonData.map(r => r.algorithm);
-        const exploredCounts = comparisonData.map(r => r.explored_count);
-        const maxExplored = Math.max(...exploredCounts, 1);
+        const values = comparisonData.map(result => Math.max(0, result[metric.key] || 0));
+        const maxValue = Math.max(...values, 1);
 
         const barWidth = Math.min(chartWidth / algorithms.length * 0.6, 50);
         const barGap = chartWidth / algorithms.length;
@@ -221,7 +231,7 @@ const Comparison = (() => {
         ctx.fillStyle = '#475569';
         ctx.font = 'bold 11px Inter, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('Số node đã duyệt (ít hơn = hiệu quả hơn)', width / 2, 15);
+        ctx.fillText(metric.label, width / 2, 15);
 
         // Y-axis gridlines
         ctx.strokeStyle = 'rgba(0, 0, 0, 0.06)';
@@ -235,17 +245,17 @@ const Comparison = (() => {
             ctx.stroke();
 
             // Y labels
-            const val = Math.round(maxExplored * (1 - i / ySteps));
+            const val = maxValue * (1 - i / ySteps);
             ctx.fillStyle = '#64748b';
             ctx.font = '10px Inter, sans-serif';
             ctx.textAlign = 'right';
-            ctx.fillText(val.toString(), padding.left - 8, y + 4);
+            ctx.fillText(metric.format(val), padding.left - 8, y + 4);
         }
 
         // Draw bars
         algorithms.forEach((algo, i) => {
             const x = padding.left + barGap * i + (barGap - barWidth) / 2;
-            const barHeight = (exploredCounts[i] / maxExplored) * chartHeight;
+            const barHeight = (values[i] / maxValue) * chartHeight;
             const y = padding.top + chartHeight - barHeight;
 
             const colors = ALGO_COLORS[algo] || { bg: 'rgba(128, 128, 128, 0.7)', border: '#888' };
@@ -284,7 +294,7 @@ const Comparison = (() => {
             ctx.fillStyle = '#0f172a';
             ctx.font = 'bold 10px Inter, sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText(exploredCounts[i].toString(), x + barWidth / 2, y - 6);
+            ctx.fillText(metric.format(values[i]), x + barWidth / 2, y - 6);
 
             // Algorithm name
             ctx.save();
@@ -318,11 +328,31 @@ const Comparison = (() => {
         return comparisonData;
     }
 
+    function exportCsv() {
+        if (!comparisonData?.length) return false;
+
+        const headers = ['Thuật toán', 'Loại', 'Khoảng cách (km)', 'Thời gian (ms)', 'Node đã duyệt', 'Số bước', 'Đường đi'];
+        const rows = comparisonData.map(result => [
+            result.algorithm, result.type, result.cost, result.time_ms,
+            result.explored_count, result.steps_count, (result.path || []).join(' -> ')
+        ]);
+        const csv = [headers, ...rows]
+            .map(row => row.map(value => `"${String(value).replaceAll('"', '""')}"`).join(','))
+            .join('\n');
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(new Blob(['\uFEFF', csv], { type: 'text/csv;charset=utf-8' }));
+        link.download = 'so-sanh-thuat-toan.csv';
+        link.click();
+        URL.revokeObjectURL(link.href);
+        return true;
+    }
+
     // Public API
     return {
         show,
         hide,
         renderChart,
-        getData
+        getData,
+        exportCsv
     };
 })();

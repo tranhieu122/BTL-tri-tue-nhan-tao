@@ -15,9 +15,9 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
     <!-- Styles -->
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/map.css">
-    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/style.css?v=6">
+    <link rel="stylesheet" href="css/map.css?v=4">
+    <link rel="stylesheet" href="css/animations.css?v=3">
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -112,6 +112,20 @@
                     <div class="tooltip-coords" id="tooltip-coords"></div>
                 </div>
 
+                <section class="map-trace" id="map-trace" aria-live="polite">
+                    <div class="map-trace-head">
+                        <span class="trace-kicker">SEARCH TRACE</span>
+                        <span class="trace-state" id="trace-state">Sẵn sàng</span>
+                    </div>
+                    <div class="trace-current" id="trace-current">Chưa có phiên chạy</div>
+                    <div class="trace-metrics">
+                        <div><span>Bước</span><strong id="trace-step">-- / --</strong></div>
+                        <div><span>Frontier</span><strong id="trace-frontier">--</strong></div>
+                        <div><span>Đã duyệt</span><strong id="trace-visited">--</strong></div>
+                        <div><span id="trace-score-label">g(n)</span><strong id="trace-score">--</strong></div>
+                    </div>
+                </section>
+
                 <!-- Map Watermark -->
                 <div class="map-watermark">
                     <span>&#128506;</span> Vietnam Pathfinder v2.0
@@ -178,6 +192,12 @@
                         </div>
                     </div>
 
+                    <div class="algo-insight" id="algo-insight">
+                        <div class="algo-insight-head"><span id="algo-insight-symbol">f(n) = g(n) + h(n)</span><span id="algo-insight-badge">Optimal</span></div>
+                        <div class="algo-insight-title" id="algo-insight-title">A* Search: tối ưu với heuristic admissible</div>
+                        <div class="algo-insight-text" id="algo-insight-text">Kết hợp chi phí đã đi và ước lượng đến đích để thu hẹp không gian tìm kiếm.</div>
+                    </div>
+
                     <!-- City Selects -->
                     <div class="form-group" style="margin-top: 0.4rem;">
                         <label class="form-label">Điểm xuất phát</label>
@@ -200,6 +220,30 @@
                             &#128062; Từng bước
                         </button>
                     </div>
+                </div>
+            </div>
+
+            <!-- ===== Demo Scenarios & Search History ===== -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <h2><span class="icon">&#127891;</span> Demo &amp; lịch sử</h2>
+                    <button class="icon-btn" id="btn-refresh-history" title="Làm mới lịch sử" aria-label="Làm mới lịch sử">&#8635;</button>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label class="form-label" for="scenario-select">Kịch bản trình bày</label>
+                        <select class="form-select" id="scenario-select">
+                            <option value="">-- Chọn kịch bản nhanh --</option>
+                            <option value="north-south">Hành trình Bắc - Nam</option>
+                            <option value="capital-central">Thủ đô - miền Trung</option>
+                            <option value="mekong">Khám phá miền Tây</option>
+                        </select>
+                    </div>
+                    <div class="btn-group demo-actions">
+                        <button class="btn btn-secondary" id="btn-random-route" title="Tạo điểm đi và đích ngẫu nhiên">&#127922; Tuyến ngẫu nhiên</button>
+                    </div>
+                    <div class="history-summary" id="history-summary">Chưa có lượt chạy được lưu</div>
+                    <div class="history-list" id="history-list" aria-live="polite"></div>
                 </div>
             </div>
 
@@ -294,6 +338,29 @@
                         </div>
                     </div>
 
+                    <div class="run-report" id="run-report" style="display:none">
+                        <div class="run-report-title">&#128203; Bảng kết quả phiên chạy</div>
+                        <div class="run-report-scroll">
+                            <table class="run-report-table">
+                                <tbody id="run-report-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="resilience-report" id="resilience-report" style="display:none">
+                        <div class="resilience-head">
+                            <div class="run-report-title">&#128737; Độ bền lộ trình</div>
+                            <button class="icon-btn" id="btn-route-insights" title="Phân tích lại độ bền lộ trình" aria-label="Phân tích lại độ bền lộ trình" disabled>&#8635;</button>
+                        </div>
+                        <div class="resilience-summary" id="resilience-summary"></div>
+                        <div class="run-report-scroll">
+                            <table class="run-report-table">
+                                <thead><tr><th>Đoạn đường</th><th>Tác động khi chặn</th></tr></thead>
+                                <tbody id="resilience-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
                     <!-- Step Detail -->
                     <div class="step-info" id="step-info" style="display:none; margin-top:0.5rem;">
                         <div>Bước: <span class="step-number" id="step-num">0</span> / <span id="step-total">0</span></div>
@@ -358,7 +425,10 @@
         <section class="comparison-section glass-card" id="comparison-section" style="display:none">
             <div class="card-header">
                 <h2><span class="icon">&#128202;</span> So sánh thuật toán</h2>
-                <button class="toolbar-btn" id="btn-close-compare">&#10005; Đóng</button>
+                <div class="comparison-actions">
+                    <button class="toolbar-btn" id="btn-export-comparison" title="Xuất dữ liệu CSV" aria-label="Xuất dữ liệu CSV">&#128190; CSV</button>
+                    <button class="toolbar-btn" id="btn-close-compare">&#10005; Đóng</button>
+                </div>
             </div>
             <div class="comparison-content">
                 <div class="comparison-table-wrapper">
@@ -378,7 +448,15 @@
                     </table>
                 </div>
                 <div class="chart-container">
-                    <div class="chart-title">&#128200; Biểu đồ so sánh hiệu suất</div>
+                    <div class="chart-heading">
+                        <div class="chart-title">&#128200; Biểu đồ so sánh hiệu suất</div>
+                        <select class="chart-metric-select" id="comparison-metric" aria-label="Chỉ số biểu đồ">
+                            <option value="explored">Node đã duyệt</option>
+                            <option value="cost">Khoảng cách</option>
+                            <option value="time">Thời gian chạy</option>
+                            <option value="steps">Số bước</option>
+                        </select>
+                    </div>
                     <div class="chart-canvas-wrapper">
                         <canvas id="comparison-chart" width="450" height="280"></canvas>
                     </div>
@@ -402,11 +480,11 @@
     <!-- ============================================================ -->
     <!-- SCRIPTS                                                       -->
     <!-- ============================================================ -->
-    <script src="js/map.js?v=2"></script>
-    <script src="js/algorithms.js?v=2"></script>
-    <script src="js/visualization.js?v=2"></script>
-    <script src="js/comparison.js?v=2"></script>
-    <script src="js/app.js?v=2"></script>
+    <script src="js/map.js?v=4"></script>
+    <script src="js/algorithms.js?v=4"></script>
+    <script src="js/visualization.js?v=3"></script>
+    <script src="js/comparison.js?v=3"></script>
+    <script src="js/app.js?v=7"></script>
 
     <!-- Algorithm Card Picker - sync with hidden select -->
     <script>

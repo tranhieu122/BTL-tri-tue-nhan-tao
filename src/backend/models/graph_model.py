@@ -55,7 +55,7 @@ class VietnamGraph:
             to_city = city_id_map[edge['to']]
             self.G.add_edge(from_city, to_city, weight=edge['distance'])
 
-    def get_adjacency(self):
+    def get_adjacency(self, additional_blocked_edges=None):
         """
         Trả về danh sách kề dưới dạng dict.
         Bỏ qua các cạnh đang bị chặn (chướng ngại vật).
@@ -63,12 +63,13 @@ class VietnamGraph:
         Returns:
             dict: {city_name: [(neighbor_name, distance), ...]}
         """
+        blocked_edges = self.blocked_edges | set(additional_blocked_edges or ())
         adj = {}
         for node in self.G.nodes():
             adj[node] = []
             for neighbor in self.G.neighbors(node):
                 edge_key = frozenset({node, neighbor})
-                if edge_key not in self.blocked_edges:
+                if edge_key not in blocked_edges:
                     weight = self.G[node][neighbor]['weight']
                     adj[node].append((neighbor, weight))
         return adj
@@ -147,4 +148,8 @@ class VietnamGraph:
             self.G[city1][city2]['weight'] = new_weight
             return True
         return False
+
+    def has_edge(self, city1, city2):
+        """Kiểm tra hai tỉnh thành có tuyến đường trực tiếp hay không."""
+        return self.G.has_edge(city1, city2)
 

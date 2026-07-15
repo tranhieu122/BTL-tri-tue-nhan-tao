@@ -577,6 +577,10 @@ const VietnamMap = (() => {
         return edges.filter(e => e.blocked).map(e => [e.from, e.to]);
     }
 
+    function getAvailableEdges() {
+        return edges.filter(edge => !edge.blocked).map(edge => ({ from: edge.from, to: edge.to }));
+    }
+
     /**
      * Lấy vị trí của một tỉnh thành (trả về latlng).
      */
@@ -646,6 +650,7 @@ const VietnamMap = (() => {
         toggleDistanceLabels,
         getCityNames,
         getBlockedEdges,
+        getAvailableEdges,
         getNodePosition,
         renderEdges,
         updateEdgeDistanceLabel,

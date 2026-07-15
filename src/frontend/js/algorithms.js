@@ -81,6 +81,28 @@ const AlgorithmsAPI = (() => {
     }
 
     /**
+     * Phân tích các đoạn trọng yếu của lộ trình tối ưu.
+     */
+    async function getRouteInsights(start, end, blockedEdges = []) {
+        try {
+            const response = await fetch(`${API_BASE}/route-insights`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ start, end, blocked_edges: blockedEdges })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || `HTTP ${response.status}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Lỗi phân tích độ bền lộ trình:', error);
+            throw error;
+        }
+    }
+
+    /**
      * Gọi API quản lý chướng ngại vật.
      */
     async function manageObstacle(action, city1 = null, city2 = null) {
@@ -161,6 +183,7 @@ const AlgorithmsAPI = (() => {
         fetchGraph,
         findPath,
         compareAlgorithms,
+        getRouteInsights,
         manageObstacle,
         getHistory,
         updateEdgeWeight,

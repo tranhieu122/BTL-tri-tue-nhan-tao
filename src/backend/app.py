@@ -65,6 +65,36 @@ ALGORITHMS = {
 INFORMED_ALGORITHMS = {'astar', 'greedy'}
 
 
+def validate_cities(start, end):
+    """Trả về lỗi đầu vào cho cặp tỉnh thành, hoặc None khi hợp lệ."""
+    if not start or not end:
+        return "Thiếu điểm xuất phát hoặc đích"
+
+    city_names = vietnam_graph.get_city_names()
+    if start not in city_names:
+        return f"Tỉnh '{start}' không tồn tại"
+    if end not in city_names:
+        return f"Tỉnh '{end}' không tồn tại"
+    if start == end:
+        return "Điểm xuất phát và đích phải khác nhau"
+    return None
+
+
+def get_temporary_blocks(blocked_list):
+    """Chuẩn hóa các chướng ngại trong request mà không đổi đồ thị dùng chung."""
+    if not isinstance(blocked_list, list):
+        return set()
+
+    blocked_edges = set()
+    for edge in blocked_list:
+        if not isinstance(edge, (list, tuple)) or len(edge) != 2:
+            continue
+        city1, city2 = edge
+        if city1 != city2 and vietnam_graph.has_edge(city1, city2):
+            blocked_edges.add(frozenset({city1, city2}))
+    return blocked_edges
+
+
 # ============================================================
 # API Endpoints
 # ============================================================
@@ -96,29 +126,16 @@ def pathfind():
     algo_name = data.get('algorithm', 'astar')
     blocked_list = data.get('blocked_edges', [])
 
-    # Validate
-    if not start or not end:
-        return jsonify({"error": "Thiếu điểm xuất phát hoặc đích"}), 400
+    validation_error = validate_cities(start, end)
+    if validation_error:
+        return jsonify({"error": validation_error}), 400
 
     if algo_name not in ALGORITHMS:
         return jsonify({"error": f"Thuật toán '{algo_name}' không hợp lệ"}), 400
 
-    city_names = vietnam_graph.get_city_names()
-    if start not in city_names:
-        return jsonify({"error": f"Tỉnh '{start}' không tồn tại"}), 400
-    if end not in city_names:
-        return jsonify({"error": f"Tỉnh '{end}' không tồn tại"}), 400
+    blocked_edges = get_temporary_blocks(blocked_list)
 
-    # Cập nhật chướng ngại vật
-    vietnam_graph.clear_all_blocks()
-    blocked_edges = set()
-    for edge in blocked_list:
-        if len(edge) == 2:
-            vietnam_graph.block_edge(edge[0], edge[1])
-            blocked_edges.add(frozenset({edge[0], edge[1]}))
-
-    # Lấy adjacency list
-    adj = vietnam_graph.get_adjacency()
+    adj = vietnam_graph.get_adjacency(blocked_edges)
 
     # Tạo heuristic function cho thuật toán cần (nhân 0.6 để đảm bảo tính Admissible do khoảng cách một số cạnh bị nhập ngắn hơn đường chim bay)
     def heuristic(city):
@@ -187,18 +204,13 @@ def compare_algorithms():
     end = data.get('end')
     blocked_list = data.get('blocked_edges', [])
 
-    if not start or not end:
-        return jsonify({"error": "Thiếu điểm xuất phát hoặc đích"}), 400
+    validation_error = validate_cities(start, end)
+    if validation_error:
+        return jsonify({"error": validation_error}), 400
 
-    # Cập nhật chướng ngại vật
-    vietnam_graph.clear_all_blocks()
-    blocked_edges = set()
-    for edge in blocked_list:
-        if len(edge) == 2:
-            vietnam_graph.block_edge(edge[0], edge[1])
-            blocked_edges.add(frozenset({edge[0], edge[1]}))
+    blocked_edges = get_temporary_blocks(blocked_list)
 
-    adj = vietnam_graph.get_adjacency()
+    adj = vietnam_graph.get_adjacency(blocked_edges)
 
     def heuristic(city):
         coords = vietnam_graph.get_coords(city)
@@ -238,6 +250,50 @@ def compare_algorithms():
     return jsonify({"results": results})
 
 
+@app.route('/api/route-insights', methods=['POST'])
+def route_insights():
+    """Đánh giá các cạnh trọng yếu bằng cách thử chặn từng cạnh của đường tối ưu."""
+    data = request.get_json() or {}
+    start = data.get('start')
+    end = data.get('end')
+    validation_error = validate_cities(start, end)
+    if validation_error:
+        return jsonify({"error": validation_error}), 400
+
+    blocked_edges = get_temporary_blocks(data.get('blocked_edges', []))
+    baseline = dijkstra_search(
+        vietnam_graph.get_adjacency(blocked_edges), start, end, None, blocked_edges
+    )
+    if baseline['cost'] < 0:
+        return jsonify({"error": "Không có đường đi để phân tích"}), 422
+
+    critical_links = []
+    for city1, city2 in zip(baseline['path'], baseline['path'][1:]):
+        disruption = blocked_edges | {frozenset({city1, city2})}
+        alternative = dijkstra_search(
+            vietnam_graph.get_adjacency(disruption), start, end, None, disruption
+        )
+        alternative_cost = alternative['cost']
+        critical_links.append({
+            "from": city1,
+            "to": city2,
+            "alternative_cost": alternative_cost,
+            "extra_distance": round(max(0, alternative_cost - baseline['cost']), 2) if alternative_cost >= 0 else None,
+            "status": "Mất kết nối" if alternative_cost < 0 else "Có đường vòng"
+        })
+
+    critical_links.sort(
+        key=lambda link: (link['alternative_cost'] < 0, link['extra_distance'] or 0),
+        reverse=True
+    )
+    return jsonify({
+        "baseline_cost": baseline['cost'],
+        "baseline_path": baseline['path'],
+        "tested_links": len(critical_links),
+        "critical_links": critical_links[:3]
+    })
+
+
 @app.route('/api/obstacles', methods=['POST'])
 def manage_obstacles():
     """
@@ -263,6 +319,9 @@ def manage_obstacles():
 
     if not city1 or not city2:
         return jsonify({"error": "Thiếu thông tin tỉnh thành"}), 400
+
+    if not vietnam_graph.has_edge(city1, city2):
+        return jsonify({"error": f"Không có tuyến đường trực tiếp giữa {city1} và {city2}"}), 404
 
     if action == 'block':
         vietnam_graph.block_edge(city1, city2)
