@@ -344,4 +344,4 @@ src/
 
 ## 👤 Tác giả
 - **Trần Trung Hiếu**
-- Đề tài: *Xây dựng chương trình tìm đường đi ngắn nhất trên đồ thị bằng thuật toán A\** (và so sánh với các thuật toán khác)
+- Đề tài: *Xây dựng chương trình tìm đường đi ngắn nhất trên đồ thị bằng thuật toán A\** (và so sánh với các thuật toán khác).
