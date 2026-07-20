@@ -481,13 +481,6 @@ body::after { display: none; }
 .run-report-table th { width: 35%; color: var(--text-secondary); font-weight: 800; white-space: nowrap; }
 .run-report-table td { color: var(--text-primary); font-family: var(--font-mono); line-height: 1.35; word-break: break-word; }
 
-.resilience-report { border-top: 1px solid var(--border-glass); padding-top: 0.75rem; }
-.resilience-head { display: flex; align-items: center; justify-content: space-between; }
-.resilience-summary { color: var(--text-secondary); font-size: 0.65rem; line-height: 1.4; margin: -0.1rem 0 0.45rem; }
-.risk-badge { display: inline-flex; padding: 0.16rem 0.4rem; border-radius: 4px; font-family: inherit; font-size: 0.62rem; font-weight: 800; white-space: nowrap; }
-.risk-high { color: #b91c1c; background: #fef2f2; border: 1px solid #fecaca; }
-.risk-medium { color: #b45309; background: #fffbeb; border: 1px solid #fde68a; }
-
 /* Step Info */
 .step-info {
     background: rgba(255, 255, 255, 0.5); 

@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="css/style.css?v=6">
     <link rel="stylesheet" href="css/map.css?v=4">
     <link rel="stylesheet" href="css/animations.css?v=3">
+    <link rel="stylesheet" href="css/upgrade.css?v=1">
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -347,20 +348,6 @@
                         </div>
                     </div>
 
-                    <div class="resilience-report" id="resilience-report" style="display:none">
-                        <div class="resilience-head">
-                            <div class="run-report-title">&#128737; Độ bền lộ trình</div>
-                            <button class="icon-btn" id="btn-route-insights" title="Phân tích lại độ bền lộ trình" aria-label="Phân tích lại độ bền lộ trình" disabled>&#8635;</button>
-                        </div>
-                        <div class="resilience-summary" id="resilience-summary"></div>
-                        <div class="run-report-scroll">
-                            <table class="run-report-table">
-                                <thead><tr><th>Đoạn đường</th><th>Tác động khi chặn</th></tr></thead>
-                                <tbody id="resilience-body"></tbody>
-                            </table>
-                        </div>
-                    </div>
-
                     <!-- Step Detail -->
                     <div class="step-info" id="step-info" style="display:none; margin-top:0.5rem;">
                         <div>Bước: <span class="step-number" id="step-num">0</span> / <span id="step-total">0</span></div>
@@ -419,6 +406,329 @@
                 </div>
             </div>
 
+            <!-- ===== Mission Control Dashboard ===== -->
+            <div class="glass-card mission-control-card" id="mission-control-card">
+                <div class="card-header">
+                    <h2><span class="icon">&#129302;</span> Mission Control</h2>
+                    <button class="icon-btn" id="btn-command-palette" title="Mở bảng lệnh nhanh" aria-label="Mở bảng lệnh nhanh">&#9000;</button>
+                </div>
+                <div class="card-body mission-control-body">
+                    <div class="mission-kpis" id="mission-kpis">
+                        <article class="mission-kpi" data-kpi="stability">
+                            <header>
+                                <span class="kpi-label">Stability Index</span>
+                                <strong class="kpi-value" id="kpi-stability">93</strong>
+                            </header>
+                            <div class="kpi-meter"><span style="width:93%"></span></div>
+                            <p>Độ ổn định của đồ thị khi mô phỏng chặn cạnh ngẫu nhiên.</p>
+                        </article>
+                        <article class="mission-kpi" data-kpi="coverage">
+                            <header>
+                                <span class="kpi-label">Coverage</span>
+                                <strong class="kpi-value" id="kpi-coverage">87</strong>
+                            </header>
+                            <div class="kpi-meter"><span style="width:87%"></span></div>
+                            <p>Mức bao phủ các tuyến trọng yếu trong vùng địa lý.</p>
+                        </article>
+                        <article class="mission-kpi" data-kpi="heuristic">
+                            <header>
+                                <span class="kpi-label">Heuristic Confidence</span>
+                                <strong class="kpi-value" id="kpi-heuristic">91</strong>
+                            </header>
+                            <div class="kpi-meter"><span style="width:91%"></span></div>
+                            <p>Độ tin cậy của heuristic hiện tại so với baseline.</p>
+                        </article>
+                    </div>
+
+                    <div class="mission-actions">
+                        <button class="btn btn-secondary" id="btn-quick-astar">Chạy nhanh A*</button>
+                        <button class="btn btn-secondary" id="btn-quick-dual">Dual Compare</button>
+                        <button class="btn btn-secondary" id="btn-quick-random">Random + Find</button>
+                    </div>
+
+                    <section class="control-checklist" aria-label="Checklist trình diễn">
+                        <div class="checklist-head">
+                            <strong>Checklist trình bày 5 phút</strong>
+                            <span id="checklist-progress">0/8</span>
+                        </div>
+                        <label><input type="checkbox" class="checklist-item"> Kết nối backend Flask thành công</label>
+                        <label><input type="checkbox" class="checklist-item"> Chọn cặp tỉnh minh họa rõ ràng</label>
+                        <label><input type="checkbox" class="checklist-item"> Demo A* ở chế độ realtime</label>
+                        <label><input type="checkbox" class="checklist-item"> Bật Step mode để giải thích frontier</label>
+                        <label><input type="checkbox" class="checklist-item"> Chặn 1 cạnh và chạy lại thuật toán</label>
+                        <label><input type="checkbox" class="checklist-item"> So sánh A* với Dijkstra</label>
+                        <label><input type="checkbox" class="checklist-item"> Chốt kết luận học thuật cuối demo</label>
+                    </section>
+
+                    <section class="signal-board" aria-label="Bảng tín hiệu hệ thống">
+                        <div class="signal-title">System Signals</div>
+                        <div class="signal-list" id="signal-list">
+                            <div class="signal-row"><span>API Latency</span><strong id="signal-latency">-- ms</strong></div>
+                            <div class="signal-row"><span>Map FPS (ước lượng)</span><strong id="signal-fps">--</strong></div>
+                            <div class="signal-row"><span>Dataset Version</span><strong>VN-34-v2</strong></div>
+                            <div class="signal-row"><span>Active Mode</span><strong id="signal-mode">select</strong></div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <!-- ===== Learning & Knowledge Base ===== -->
+            <div class="glass-card learning-card" id="learning-card">
+                <div class="card-header">
+                    <h2><span class="icon">&#128218;</span> Knowledge Base</h2>
+                </div>
+                <div class="card-body learning-body">
+                    <p class="learning-intro">
+                        Khối này giúp bạn thuyết trình mạch lạc: mỗi thuật toán có mô tả, độ phức tạp, điểm mạnh, điểm yếu và ngữ cảnh sử dụng.
+                    </p>
+
+                    <article class="kb-item open">
+                        <button class="kb-toggle" type="button" aria-expanded="true">
+                            <span>A* Search</span>
+                            <span class="kb-arrow">&#9662;</span>
+                        </button>
+                        <div class="kb-content">
+                            <p>A* dùng $f(n)=g(n)+h(n)$, cân bằng giữa chi phí đã đi và ước lượng đến đích.</p>
+                            <ul>
+                                <li>Hoàn chỉnh và tối ưu khi heuristic admissible, consistent.</li>
+                                <li>Ít mở rộng node hơn Dijkstra trong nhiều trường hợp thực tế.</li>
+                                <li>Phù hợp cho bản đồ có trọng số khoảng cách.</li>
+                            </ul>
+                        </div>
+                    </article>
+
+                    <article class="kb-item">
+                        <button class="kb-toggle" type="button" aria-expanded="false">
+                            <span>Dijkstra / UCS</span>
+                            <span class="kb-arrow">&#9662;</span>
+                        </button>
+                        <div class="kb-content">
+                            <p>Dijkstra và UCS ưu tiên node có $g(n)$ nhỏ nhất, đảm bảo đường đi tối ưu.</p>
+                            <ul>
+                                <li>Mạnh ở tính ổn định, dễ giải thích về mặt lý thuyết.</li>
+                                <li>Tốn công mở rộng không gian tìm kiếm rộng hơn A*.</li>
+                                <li>Là baseline công bằng để so hiệu quả heuristic.</li>
+                            </ul>
+                        </div>
+                    </article>
+
+                    <article class="kb-item">
+                        <button class="kb-toggle" type="button" aria-expanded="false">
+                            <span>Greedy Best-First</span>
+                            <span class="kb-arrow">&#9662;</span>
+                        </button>
+                        <div class="kb-content">
+                            <p>Greedy chỉ nhìn $h(n)$, đi nhanh về hướng đích nhưng có thể rơi vào đường vòng.</p>
+                            <ul>
+                                <li>Thường duyệt ít node.</li>
+                                <li>Không đảm bảo tối ưu.</li>
+                                <li>Hữu ích khi cần phản hồi rất nhanh.</li>
+                            </ul>
+                        </div>
+                    </article>
+
+                    <article class="kb-item">
+                        <button class="kb-toggle" type="button" aria-expanded="false">
+                            <span>BFS / DFS</span>
+                            <span class="kb-arrow">&#9662;</span>
+                        </button>
+                        <div class="kb-content">
+                            <p>BFS tối ưu số cạnh trong đồ thị không trọng số; DFS phù hợp khám phá sâu.</p>
+                            <ul>
+                                <li>BFS dễ hiểu, ổn cho dữ liệu đơn giản.</li>
+                                <li>DFS ít bộ nhớ nhưng dễ đi sai hướng lâu.</li>
+                                <li>Trong bản đồ trọng số, thường không tối ưu khoảng cách thực.</li>
+                            </ul>
+                        </div>
+                    </article>
+                </div>
+            </div>
+
+            <!-- ===== Storyboard & Presenter Notes ===== -->
+            <div class="glass-card storyboard-card" id="storyboard-card">
+                <div class="card-header">
+                    <h2><span class="icon">&#127916;</span> Storyboard</h2>
+                </div>
+                <div class="card-body storyboard-body">
+                    <div class="story-tabs" role="tablist" aria-label="Kịch bản trình bày">
+                        <button class="story-tab active" data-tab="tab-intro">Mở đầu</button>
+                        <button class="story-tab" data-tab="tab-demo">Live Demo</button>
+                        <button class="story-tab" data-tab="tab-compare">So sánh</button>
+                        <button class="story-tab" data-tab="tab-conclude">Kết luận</button>
+                    </div>
+
+                    <section class="story-panel active" id="tab-intro">
+                        <h3>Mở đầu bối cảnh</h3>
+                        <p>Giới thiệu bài toán tìm đường trên bản đồ 34 tỉnh thành với trọng số thực tế.</p>
+                        <ol>
+                            <li>Nêu mục tiêu: đường đi ngắn nhất, trực quan từng bước.</li>
+                            <li>Nhấn mạnh sự khác biệt giữa informed và blind search.</li>
+                            <li>Giải thích vì sao chọn bản đồ Việt Nam làm dataset.</li>
+                            <li>Giới thiệu nhanh giao diện chính và các control.</li>
+                        </ol>
+                    </section>
+
+                    <section class="story-panel" id="tab-demo">
+                        <h3>Live Demo chính</h3>
+                        <p>Chạy A* với một tuyến đủ dài để thể hiện khác biệt rõ rệt.</p>
+                        <ol>
+                            <li>Chọn điểm đầu và điểm đích trên bản đồ.</li>
+                            <li>Bật trace box để nói về frontier và visited.</li>
+                            <li>Kết hợp step mode để giải thích quyết định mở rộng node.</li>
+                            <li>Đọc thống kê thời gian và số node đã duyệt.</li>
+                        </ol>
+                    </section>
+
+                    <section class="story-panel" id="tab-compare">
+                        <h3>So sánh thuật toán</h3>
+                        <p>Dùng bảng và chart để giải thích đánh đổi giữa tốc độ và độ tối ưu.</p>
+                        <ol>
+                            <li>Chạy compare all để lấy bức tranh tổng quan.</li>
+                            <li>Nhấn vào metric để chuyển góc nhìn đánh giá.</li>
+                            <li>Đọc các badge tốt nhất theo chi phí, thời gian, số node.</li>
+                            <li>Demo dual compare A* và Greedy để dễ nhìn trên map.</li>
+                            <li>Kết nối kết quả với lý thuyết heuristic.</li>
+                        </ol>
+                    </section>
+
+                    <section class="story-panel" id="tab-conclude">
+                        <h3>Kết luận cuối</h3>
+                        <p>Chốt thông điệp khoa học ngắn gọn, rõ ràng, có số liệu minh chứng.</p>
+                        <ol>
+                            <li>A* đạt cân bằng tốt giữa chất lượng và hiệu năng.</li>
+                            <li>Dijkstra/UCS là baseline tối ưu ổn định.</li>
+                            <li>Greedy phản hồi nhanh nhưng có rủi ro lệch đường.</li>
+                            <li>BFS/DFS minh họa tốt cho nền tảng tìm kiếm mù.</li>
+                            <li>Đề xuất mở rộng: traffic realtime và dữ liệu thời tiết.</li>
+                        </ol>
+                    </section>
+
+                    <div class="presenter-notes">
+                        <label for="presenter-note">Ghi chú thuyết trình cá nhân</label>
+                        <textarea id="presenter-note" rows="7" placeholder="Nhập note để lưu tạm trong trình duyệt (auto save localStorage)..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== Experiment Notebook ===== -->
+            <div class="glass-card notebook-card" id="notebook-card">
+                <div class="card-header">
+                    <h2><span class="icon">&#128221;</span> Experiment Notebook</h2>
+                </div>
+                <div class="card-body notebook-body">
+                    <div class="notebook-tools">
+                        <button class="btn btn-secondary" id="btn-add-note-row">Thêm dòng ghi chú</button>
+                        <button class="btn btn-secondary" id="btn-clear-note-row">Xóa tất cả</button>
+                        <button class="btn btn-secondary" id="btn-export-note-row">Xuất JSON</button>
+                    </div>
+
+                    <div class="notebook-table-wrap">
+                        <table class="notebook-table" id="notebook-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Scenario</th>
+                                    <th>Algorithm</th>
+                                    <th>Cost (km)</th>
+                                    <th>Explored</th>
+                                    <th>Time (ms)</th>
+                                    <th>Nhận xét</th>
+                                    <th>Xóa</th>
+                                </tr>
+                            </thead>
+                            <tbody id="notebook-tbody">
+                                <tr>
+                                    <td>1</td>
+                                    <td>Bắc-Nam baseline</td>
+                                    <td>A*</td>
+                                    <td>--</td>
+                                    <td>--</td>
+                                    <td>--</td>
+                                    <td><input type="text" value="Dùng làm mốc ban đầu"></td>
+                                    <td><button class="danger-mini" type="button">&#10005;</button></td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>Miền Trung tối ưu</td>
+                                    <td>Dijkstra</td>
+                                    <td>--</td>
+                                    <td>--</td>
+                                    <td>--</td>
+                                    <td><input type="text" value="So với A* để đo node duyệt"></td>
+                                    <td><button class="danger-mini" type="button">&#10005;</button></td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>Stress route blockage</td>
+                                    <td>Greedy</td>
+                                    <td>--</td>
+                                    <td>--</td>
+                                    <td>--</td>
+                                    <td><input type="text" value="Theo dõi khi chặn cạnh trọng yếu"></td>
+                                    <td><button class="danger-mini" type="button">&#10005;</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="notebook-hint">
+                        Gợi ý: sau mỗi lần chạy thành công, dùng nút "Auto capture" trong command palette để tự điền số liệu.
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== QA Matrix ===== -->
+            <div class="glass-card qa-card" id="qa-card">
+                <div class="card-header">
+                    <h2><span class="icon">&#129514;</span> QA Matrix</h2>
+                </div>
+                <div class="card-body qa-body">
+                    <div class="qa-grid">
+                        <div class="qa-item"><span>Node Selection</span><strong class="qa-ok">PASS</strong></div>
+                        <div class="qa-item"><span>Obstacle Toggle</span><strong class="qa-ok">PASS</strong></div>
+                        <div class="qa-item"><span>Weight Edit</span><strong class="qa-warn">CHECK</strong></div>
+                        <div class="qa-item"><span>Trace Panel</span><strong class="qa-ok">PASS</strong></div>
+                        <div class="qa-item"><span>History Render</span><strong class="qa-ok">PASS</strong></div>
+                        <div class="qa-item"><span>Compare Chart</span><strong class="qa-ok">PASS</strong></div>
+                        <div class="qa-item"><span>Dual Overlay</span><strong class="qa-warn">CHECK</strong></div>
+                        <div class="qa-item"><span>Mobile Layout</span><strong class="qa-warn">CHECK</strong></div>
+                        <div class="qa-item"><span>Backend Retry</span><strong class="qa-warn">CHECK</strong></div>
+                        <div class="qa-item"><span>Toast Queue</span><strong class="qa-ok">PASS</strong></div>
+                        <div class="qa-item"><span>Keyboard Access</span><strong class="qa-warn">CHECK</strong></div>
+                        <div class="qa-item"><span>Geo Data Sync</span><strong class="qa-ok">PASS</strong></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== FAQ ===== -->
+            <div class="glass-card faq-card" id="faq-card">
+                <div class="card-header">
+                    <h2><span class="icon">&#10067;</span> FAQ nhanh</h2>
+                </div>
+                <div class="card-body faq-body">
+                    <details open>
+                        <summary>Vì sao A* thường nhanh hơn Dijkstra?</summary>
+                        <p>A* sử dụng heuristic để định hướng tìm kiếm, giảm số node mở rộng trong nhiều tình huống.</p>
+                    </details>
+                    <details>
+                        <summary>Greedy có thể cho kết quả sai tối ưu không?</summary>
+                        <p>Có. Greedy chỉ nhìn gần đích nhất theo heuristic nên có thể bỏ lỡ đường tổng thể ngắn hơn.</p>
+                    </details>
+                    <details>
+                        <summary>Khi nào dùng Step Mode?</summary>
+                        <p>Khi cần giải thích trực quan từng bước cho người xem hoặc debug sự khác biệt giữa các thuật toán.</p>
+                    </details>
+                    <details>
+                        <summary>Dữ liệu khoảng cách có thể chỉnh trực tiếp không?</summary>
+                        <p>Có. Chuyển sang chế độ "Chỉnh trọng số" rồi click vào cạnh để cập nhật km.</p>
+                    </details>
+                    <details>
+                        <summary>Hệ thống lưu note ở đâu?</summary>
+                        <p>Ghi chú presenter và notebook demo lưu localStorage trong trình duyệt hiện tại.</p>
+                    </details>
+                </div>
+            </div>
+
         </aside>
 
         <!-- ======== COMPARISON SECTION (Bottom) ======== -->
@@ -474,6 +784,77 @@
         </section>
     </main>
 
+    <!-- Command Palette Overlay -->
+    <div class="command-palette" id="command-palette" aria-hidden="true">
+        <div class="command-backdrop" id="command-backdrop"></div>
+        <div class="command-dialog" role="dialog" aria-modal="true" aria-labelledby="command-title">
+            <div class="command-head">
+                <h2 id="command-title">Command Palette</h2>
+                <button class="icon-btn" id="btn-close-command" aria-label="Đóng bảng lệnh">&#10005;</button>
+            </div>
+            <div class="command-search-wrap">
+                <input id="command-search" type="text" placeholder="Gõ để lọc lệnh: ví dụ 'A*', 'compare', 'random', 'reset'..." autocomplete="off">
+            </div>
+            <div class="command-list" id="command-list">
+                <button class="command-item" data-command="run-find">
+                    <strong>Run: Tìm đường hiện tại</strong>
+                    <span>Thực thi tương đương nút "Tìm đường"</span>
+                </button>
+                <button class="command-item" data-command="run-compare">
+                    <strong>Run: So sánh tất cả thuật toán</strong>
+                    <span>Mở bảng compare và chart tổng quan</span>
+                </button>
+                <button class="command-item" data-command="run-dual">
+                    <strong>Run: Dual Compare</strong>
+                    <span>So găng 2 thuật toán trực tiếp trên map</span>
+                </button>
+                <button class="command-item" data-command="run-random">
+                    <strong>Generate: Tuyến ngẫu nhiên</strong>
+                    <span>Tự chọn điểm đầu/đích ngẫu nhiên</span>
+                </button>
+                <button class="command-item" data-command="run-obstacles">
+                    <strong>Generate: Chướng ngại vật ngẫu nhiên</strong>
+                    <span>Block nhanh một số cạnh để stress test</span>
+                </button>
+                <button class="command-item" data-command="run-reset">
+                    <strong>System: Reset tất cả</strong>
+                    <span>Đưa giao diện về trạng thái ban đầu</span>
+                </button>
+                <button class="command-item" data-command="run-capture">
+                    <strong>Notebook: Auto capture kết quả gần nhất</strong>
+                    <span>Ghi dữ liệu thống kê vào bảng notebook</span>
+                </button>
+            </div>
+            <div class="command-foot">
+                <span>Phím tắt: Ctrl + K mở nhanh</span>
+                <span>Esc để đóng</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Templates for dynamic UI rows -->
+    <template id="tpl-note-row">
+        <tr>
+            <td class="row-index">0</td>
+            <td><input type="text" value="Scenario mới"></td>
+            <td>
+                <select>
+                    <option value="A*">A*</option>
+                    <option value="Dijkstra">Dijkstra</option>
+                    <option value="Greedy">Greedy</option>
+                    <option value="BFS">BFS</option>
+                    <option value="DFS">DFS</option>
+                    <option value="UCS">UCS</option>
+                </select>
+            </td>
+            <td><input type="number" step="0.1" value="0"></td>
+            <td><input type="number" value="0"></td>
+            <td><input type="number" step="0.0001" value="0"></td>
+            <td><input type="text" value=""></td>
+            <td><button class="danger-mini" type="button">&#10005;</button></td>
+        </tr>
+    </template>
+
     <!-- Toast Container -->
     <div class="toast-container" id="toast-container"></div>
 
@@ -485,6 +866,7 @@
     <script src="js/visualization.js?v=3"></script>
     <script src="js/comparison.js?v=3"></script>
     <script src="js/app.js?v=7"></script>
+    <script src="js/ui-upgrade.js?v=1"></script>
 
     <!-- Algorithm Card Picker - sync with hidden select -->
     <script>

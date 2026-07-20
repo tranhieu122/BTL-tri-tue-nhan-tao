@@ -213,3 +213,41 @@ class Database:
         conn.commit()
         conn.close()
 
+    def clear_search_history(self):
+        """Xóa toàn bộ lịch sử tìm kiếm."""
+        conn = self._get_connection()
+        cursor = conn.cursor()
+        cursor.execute('DELETE FROM search_history')
+        conn.commit()
+        conn.close()
+
+    def count_search_history(self):
+        """Đếm số bản ghi lịch sử tìm kiếm."""
+        conn = self._get_connection()
+        cursor = conn.cursor()
+        cursor.execute('SELECT COUNT(*) FROM search_history')
+        count = cursor.fetchone()[0]
+        conn.close()
+        return count
+
+    def get_graph_stats(self):
+        """Lấy thống kê nhanh về dữ liệu đồ thị trong database."""
+        conn = self._get_connection()
+        cursor = conn.cursor()
+
+        cursor.execute('SELECT COUNT(*) FROM cities')
+        city_count = cursor.fetchone()[0]
+
+        cursor.execute('SELECT COUNT(*) FROM edges')
+        edge_count = cursor.fetchone()[0]
+
+        cursor.execute('SELECT COUNT(*) FROM edges WHERE is_blocked = 1')
+        blocked_count = cursor.fetchone()[0]
+
+        conn.close()
+        return {
+            'city_count': city_count,
+            'edge_count': edge_count,
+            'blocked_edge_count': blocked_count
+        }
+

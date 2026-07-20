@@ -1,0 +1,208 @@
+<mxfile host="Electron" agent="Mozilla/5.0">
+  <diagram id="system_architecture" name="2.2.4 - Sơ đồ kiến trúc hệ thống">
+    <mxGraphModel dx="1471" dy="894" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="1100" math="0" shadow="1">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;fontSize=22;fontStyle=1;" value="SƠ ĐỒ KIẾN TRÚC HỆ THỐNG" vertex="1">
+          <mxGeometry height="40" width="380" x="560" y="15" as="geometry" />
+        </mxCell>
+        <mxCell id="client_bg" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;arcSize=6;shadow=1;strokeWidth=2;opacity=30;" value="" vertex="1">
+          <mxGeometry height="910" width="460" x="30" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="client_label" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;fontSize=16;fontStyle=1;fontColor=#1565C0;fillColor=#E3F2FD;rounded=1;arcSize=20;spacingLeft=10;spacingRight=10;" value="🖥️ CLIENT (Trình duyệt)" vertex="1">
+          <mxGeometry height="32" width="240" x="140" y="98" as="geometry" />
+        </mxCell>
+        <mxCell id="user_icon" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#E8F5E9;strokeColor=#2E7D32;fontSize=11;fontStyle=1;shadow=1;" value="Người dùng" vertex="1">
+          <mxGeometry height="50" width="25" x="245" y="145" as="geometry" />
+        </mxCell>
+        <mxCell id="html5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#E65100;fontSize=11;fontStyle=1;arcSize=12;shadow=1;strokeWidth=2;" value="📄 &lt;b&gt;HTML5&lt;/b&gt;&lt;br&gt;&lt;i style=&quot;font-weight:normal;font-size:10px;&quot;&gt;index.html&lt;/i&gt;&lt;br&gt;&lt;br&gt;Layout chia vùng:&lt;br&gt;Sidebar điều khiển +&lt;br&gt;Bản đồ tương tác" vertex="1">
+          <mxGeometry height="110" width="190" x="55" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="css3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#1565C0;fontSize=11;fontStyle=1;arcSize=12;shadow=1;strokeWidth=2;" value="🎨 &lt;b&gt;CSS3&lt;/b&gt;&lt;br&gt;&lt;i style=&quot;font-weight:normal;font-size:10px;&quot;&gt;style.css, map.css,&lt;br&gt;animations.css&lt;/i&gt;&lt;br&gt;&lt;br&gt;Glassmorphism, Gradient,&lt;br&gt;Keyframes Animation" vertex="1">
+          <mxGeometry height="110" width="190" x="275" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="js_bg" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8E1;strokeColor=#F9A825;arcSize=8;shadow=1;strokeWidth=2;opacity=60;" value="" vertex="1">
+          <mxGeometry height="310" width="420" x="50" y="370" as="geometry" />
+        </mxCell>
+        <mxCell id="js_label" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;fontSize=13;fontStyle=1;fontColor=#F57F17;fillColor=#FFF9C4;rounded=1;arcSize=20;spacingLeft=6;spacingRight=6;" value="⚡ Vanilla JavaScript (ES6+)" vertex="1">
+          <mxGeometry height="26" width="230" x="145" y="378" as="geometry" />
+        </mxCell>
+        <mxCell id="js_app" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#F9A825;fontSize=10;arcSize=10;shadow=1;" value="&lt;b&gt;app.js&lt;/b&gt;&lt;br&gt;Khởi tạo, bắt sự kiện&lt;br&gt;chuột &amp; điều phối UI" vertex="1">
+          <mxGeometry height="60" width="130" x="70" y="415" as="geometry" />
+        </mxCell>
+        <mxCell id="js_map" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#F9A825;fontSize=10;arcSize=10;shadow=1;" value="&lt;b&gt;map.js&lt;/b&gt;&lt;br&gt;Vẽ SVG bản đồ,&lt;br&gt;zoom &amp; pan" vertex="1">
+          <mxGeometry height="60" width="130" x="320" y="415" as="geometry" />
+        </mxCell>
+        <mxCell id="js_algo" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#F9A825;fontSize=10;arcSize=10;shadow=1;" value="&lt;b&gt;algorithms.js&lt;/b&gt;&lt;br&gt;Gọi API tới Flask&lt;br&gt;qua Fetch API" vertex="1">
+          <mxGeometry height="60" width="130" x="70" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="js_viz" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#F9A825;fontSize=10;arcSize=10;shadow=1;" value="&lt;b&gt;visualization.js&lt;/b&gt;&lt;br&gt;Hoạt ảnh mô phỏng&lt;br&gt;từng bước duyệt" vertex="1">
+          <mxGeometry height="60" width="130" x="320" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="js_comp" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#F9A825;fontSize=10;arcSize=10;shadow=1;" value="&lt;b&gt;comparison.js&lt;/b&gt;&lt;br&gt;Biểu đồ &amp; bảng&lt;br&gt;so sánh thuật toán" vertex="1">
+          <mxGeometry height="60" width="130" x="70" y="565" as="geometry" />
+        </mxCell>
+        <mxCell id="js_geo" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#F9A825;fontSize=10;arcSize=10;shadow=1;" value="&lt;b&gt;vietnam_geojson.js&lt;/b&gt;&lt;br&gt;Tọa độ GeoJSON&lt;br&gt;ranh giới tỉnh thành" vertex="1">
+          <mxGeometry height="60" width="130" x="320" y="565" as="geometry" />
+        </mxCell>
+        <mxCell id="svg_map" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;fontSize=11;fontStyle=1;arcSize=12;shadow=1;strokeWidth=2;" value="🗺️ &lt;b&gt;Bản đồ SVG tương tác&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-weight:normal;font-size:10px;&quot;&gt;• 34 tỉnh thành (clickable nodes)&lt;br&gt;• Đường nối quốc lộ (edges)&lt;br&gt;• Chặn đường / Sửa khoảng cách&lt;br&gt;• Hoạt ảnh duyệt + đường tối ưu&lt;/span&gt;" vertex="1">
+          <mxGeometry height="110" width="300" x="110" y="710" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow_request" edge="1" parent="1" style="shape=flexArrow;endArrow=classic;html=1;strokeWidth=2;fillColor=#1565C0;strokeColor=#0D47A1;shadow=1;endWidth=14;endSize=6;width=8;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="500" y="450" as="sourcePoint" />
+            <mxPoint x="570" y="450" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrow_response" edge="1" parent="1" style="shape=flexArrow;endArrow=classic;html=1;strokeWidth=2;fillColor=#2E7D32;strokeColor=#1B5E20;shadow=1;endWidth=14;endSize=6;width=8;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="570" y="530" as="sourcePoint" />
+            <mxPoint x="500" y="530" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="net_bg" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#78909C;arcSize=20;shadow=1;dashed=1;" value="" vertex="1">
+          <mxGeometry height="200" width="85" x="495" y="390" as="geometry" />
+        </mxCell>
+        <mxCell id="net_label" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;fontSize=10;fontStyle=1;fontColor=#455A64;rotation=-90;" value="HTTP / REST API" vertex="1">
+          <mxGeometry height="20" width="110" x="483" y="480" as="geometry" />
+        </mxCell>
+        <mxCell id="net_detail1" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;fontSize=9;fontColor=#1565C0;fontStyle=1;" value="GET /api/graph" vertex="1">
+          <mxGeometry height="18" width="95" x="493" y="400" as="geometry" />
+        </mxCell>
+        <mxCell id="net_detail2" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;fontSize=9;fontColor=#1565C0;fontStyle=1;" value="POST /api/pathfind" vertex="1">
+          <mxGeometry height="18" width="110" x="485" y="420" as="geometry" />
+        </mxCell>
+        <mxCell id="net_detail3" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;fontSize=9;fontColor=#1565C0;" value="POST /api/obstacles" vertex="1">
+          <mxGeometry height="18" width="115" x="480" y="552" as="geometry" />
+        </mxCell>
+        <mxCell id="net_detail4" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;fontSize=9;fontColor=#1565C0;" value="POST /api/compare" vertex="1">
+          <mxGeometry height="18" width="110" x="485" y="570" as="geometry" />
+        </mxCell>
+        <mxCell id="server_bg" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#E65100;arcSize=6;shadow=1;strokeWidth=2;opacity=30;" value="" vertex="1">
+          <mxGeometry height="910" width="870" x="600" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="server_label" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;fontSize=16;fontStyle=1;fontColor=#E65100;fillColor=#FFF3E0;rounded=1;arcSize=20;spacingLeft=10;spacingRight=10;" value="⚙️ SERVER (Python Flask)" vertex="1">
+          <mxGeometry height="32" width="260" x="905" y="98" as="geometry" />
+        </mxCell>
+        <mxCell id="flask_app" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#E65100;fontSize=12;fontStyle=1;arcSize=10;shadow=1;strokeWidth=2;" value="🔥 &lt;b&gt;Flask Web Server&lt;/b&gt;&lt;br&gt;&lt;i style=&quot;font-weight:normal;font-size:10px;&quot;&gt;app.py — REST API Routing&lt;/i&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-weight:normal;font-size:10px;&quot;&gt;Xử lý request, điều phối thuật toán,&lt;br&gt;serve tài nguyên frontend&lt;/span&gt;" vertex="1">
+          <mxGeometry height="100" width="280" x="730" y="155" as="geometry" />
+        </mxCell>
+        <mxCell id="cors_badge" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#607D8B;fontSize=9;arcSize=20;shadow=1;" value="🔒 Flask-CORS" vertex="1">
+          <mxGeometry height="28" width="100" x="1040" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="algo_bg" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#283593;arcSize=8;shadow=1;strokeWidth=2;opacity=50;" value="" vertex="1">
+          <mxGeometry height="290" width="380" x="625" y="290" as="geometry" />
+        </mxCell>
+        <mxCell id="algo_label" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;fontSize=13;fontStyle=1;fontColor=#283593;fillColor=#E8EAF6;rounded=1;arcSize=20;spacingLeft=6;spacingRight=6;" value="🧠 Thuật toán tìm kiếm (algorithms/)" vertex="1">
+          <mxGeometry height="26" width="270" x="680" y="298" as="geometry" />
+        </mxCell>
+        <mxCell id="algo_astar" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=11;fontStyle=1;arcSize=12;shadow=1;strokeWidth=2;" value="⭐ &lt;b&gt;A* Search&lt;/b&gt;&lt;br&gt;&lt;i style=&quot;font-weight:normal;font-size:9px;&quot;&gt;(Informed — Trọng tâm)&lt;/i&gt;" vertex="1">
+          <mxGeometry height="50" width="160" x="645" y="338" as="geometry" />
+        </mxCell>
+        <mxCell id="algo_dijkstra" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#283593;fontSize=10;arcSize=12;shadow=1;" value="Dijkstra" vertex="1">
+          <mxGeometry height="40" width="100" x="825" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="algo_bfs" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#283593;fontSize=10;arcSize=12;shadow=1;" value="BFS" vertex="1">
+          <mxGeometry height="40" width="100" x="645" y="405" as="geometry" />
+        </mxCell>
+        <mxCell id="algo_dfs" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#283593;fontSize=10;arcSize=12;shadow=1;" value="DFS" vertex="1">
+          <mxGeometry height="40" width="100" x="765" y="405" as="geometry" />
+        </mxCell>
+        <mxCell id="algo_ucs" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#283593;fontSize=10;arcSize=12;shadow=1;" value="UCS" vertex="1">
+          <mxGeometry height="40" width="100" x="885" y="405" as="geometry" />
+        </mxCell>
+        <mxCell id="algo_greedy" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#283593;fontSize=10;arcSize=12;shadow=1;" value="Greedy Best-First" vertex="1">
+          <mxGeometry height="40" width="120" x="700" y="460" as="geometry" />
+        </mxCell>
+        <mxCell id="heuristic" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FCE4EC;strokeColor=#C62828;fontSize=10;fontStyle=1;arcSize=12;shadow=1;strokeWidth=2;" value="📐 &lt;b&gt;heuristics.py&lt;/b&gt;&lt;br&gt;&lt;i style=&quot;font-weight:normal;&quot;&gt;Haversine (độ cong&lt;br&gt;Trái Đất) × 0.6&lt;/i&gt;" vertex="1">
+          <mxGeometry height="60" width="130" x="850" y="460" as="geometry" />
+        </mxCell>
+        <mxCell id="graph_model" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#7B1FA2;fontSize=12;fontStyle=1;arcSize=10;shadow=1;strokeWidth=2;" value="📊 &lt;b&gt;NetworkX Graph&lt;/b&gt;&lt;br&gt;&lt;i style=&quot;font-weight:normal;font-size:10px;&quot;&gt;graph_model.py — Đồ thị trong bộ nhớ RAM&lt;/i&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-weight:normal;font-size:10px;&quot;&gt;• 34 nodes (tỉnh thành + tọa độ GPS)&lt;br&gt;• Edges với trọng số (km đường bộ)&lt;br&gt;• Quản lý trạng thái chặn đường&lt;/span&gt;" vertex="1">
+          <mxGeometry height="115" width="280" x="1080" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="db_bg" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#F9A825;arcSize=8;shadow=1;strokeWidth=2;opacity=50;" value="" vertex="1">
+          <mxGeometry height="275" width="340" x="1080" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="db_label" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;fontSize=13;fontStyle=1;fontColor=#F57F17;fillColor=#FFF9C4;rounded=1;arcSize=20;spacingLeft=6;spacingRight=6;" value="💾 Cơ sở dữ liệu SQLite3" vertex="1">
+          <mxGeometry height="26" width="210" x="1145" y="478" as="geometry" />
+        </mxCell>
+        <mxCell id="db_icon" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#FFF9C4;strokeColor=#F9A825;fontSize=11;fontStyle=1;shadow=1;strokeWidth=2;" value="vietnam_graph.db" vertex="1">
+          <mxGeometry height="55" width="150" x="1175" y="515" as="geometry" />
+        </mxCell>
+        <mxCell id="db_cities" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#F9A825;fontSize=10;arcSize=10;shadow=1;" value="📋 &lt;b&gt;cities&lt;/b&gt;&lt;br&gt;34 tỉnh thành + tọa độ" vertex="1">
+          <mxGeometry height="45" width="145" x="1095" y="585" as="geometry" />
+        </mxCell>
+        <mxCell id="db_edges" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#F9A825;fontSize=10;arcSize=10;shadow=1;" value="📋 &lt;b&gt;edges&lt;/b&gt;&lt;br&gt;Tuyến đường + is_blocked" vertex="1">
+          <mxGeometry height="45" width="145" x="1260" y="585" as="geometry" />
+        </mxCell>
+        <mxCell id="db_history" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#F9A825;fontSize=10;arcSize=10;shadow=1;" value="📋 &lt;b&gt;search_history&lt;/b&gt;&lt;br&gt;Lịch sử tìm kiếm" vertex="1">
+          <mxGeometry height="45" width="145" x="1095" y="645" as="geometry" />
+        </mxCell>
+        <mxCell id="json_data" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#607D8B;fontSize=10;fontStyle=1;arcSize=12;shadow=1;" value="📁 &lt;b&gt;vietnam_cities.json&lt;/b&gt;&lt;br&gt;&lt;i style=&quot;font-weight:normal;&quot;&gt;Dữ liệu tĩnh mặc định&lt;br&gt;(tỉnh + đường nối)&lt;/i&gt;" vertex="1">
+          <mxGeometry height="60" width="145" x="1260" y="645" as="geometry" />
+        </mxCell>
+        <mxCell id="a_flask_algo" edge="1" parent="1" source="flask_app" style="endArrow=block;html=1;strokeWidth=2;strokeColor=#283593;endFill=1;rounded=1;" target="algo_bg" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a_flask_algo_label" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;fontSize=9;fontColor=#283593;fontStyle=2;" value="Điều phối thuật toán" vertex="1">
+          <mxGeometry height="18" width="110" x="640" y="268" as="geometry" />
+        </mxCell>
+        <mxCell id="a_flask_graph" edge="1" parent="1" source="flask_app" style="endArrow=block;html=1;strokeWidth=2;strokeColor=#7B1FA2;endFill=1;rounded=1;" target="graph_model" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a_flask_graph_label" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;fontSize=9;fontColor=#7B1FA2;fontStyle=2;" value="Truy vấn / Cập nhật đồ thị" vertex="1">
+          <mxGeometry height="18" width="140" x="1020" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="a_flask_db" edge="1" parent="1" source="flask_app" style="endArrow=block;html=1;strokeWidth=2;strokeColor=#F9A825;endFill=1;rounded=1;exitX=1;exitY=1;exitDx=0;exitDy=0;" target="db_icon" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a_flask_db_label" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;fontSize=9;fontColor=#F57F17;fontStyle=2;" value="Đọc/Ghi dữ liệu" vertex="1">
+          <mxGeometry height="18" width="95" x="1070" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="a_algo_graph" edge="1" parent="1" source="algo_bg" style="endArrow=block;html=1;strokeWidth=2;strokeColor=#7B1FA2;endFill=1;rounded=1;dashed=1;" target="graph_model" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a_algo_graph_label" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;fontSize=9;fontColor=#7B1FA2;fontStyle=2;" value="Duyệt nodes &amp; edges" vertex="1">
+          <mxGeometry height="18" width="115" x="1005" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="tech_bg" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FAFAFA;strokeColor=#BDBDBD;arcSize=8;shadow=1;dashed=1;" value="" vertex="1">
+          <mxGeometry height="105" width="820" x="625" y="780" as="geometry" />
+        </mxCell>
+        <mxCell id="tech_label" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;fontSize=12;fontStyle=1;fontColor=#37474F;" value="📦 CÔNG NGHỆ SỬ DỤNG" vertex="1">
+          <mxGeometry height="22" width="190" x="940" y="786" as="geometry" />
+        </mxCell>
+        <mxCell id="tech_python" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=10;fontStyle=1;arcSize=15;shadow=1;" value="🐍 Python 3" vertex="1">
+          <mxGeometry height="30" width="95" x="645" y="815" as="geometry" />
+        </mxCell>
+        <mxCell id="tech_flask" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#E65100;fontSize=10;fontStyle=1;arcSize=15;shadow=1;" value="🔥 Flask 3.1" vertex="1">
+          <mxGeometry height="30" width="95" x="755" y="815" as="geometry" />
+        </mxCell>
+        <mxCell id="tech_nx" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#7B1FA2;fontSize=10;fontStyle=1;arcSize=15;shadow=1;" value="📊 NetworkX" vertex="1">
+          <mxGeometry height="30" width="95" x="865" y="815" as="geometry" />
+        </mxCell>
+        <mxCell id="tech_sqlite" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#F9A825;fontSize=10;fontStyle=1;arcSize=15;shadow=1;" value="💾 SQLite3" vertex="1">
+          <mxGeometry height="30" width="95" x="975" y="815" as="geometry" />
+        </mxCell>
+        <mxCell id="tech_html" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFEBEE;strokeColor=#C62828;fontSize=10;fontStyle=1;arcSize=15;shadow=1;" value="📄 HTML5" vertex="1">
+          <mxGeometry height="30" width="95" x="645" y="852" as="geometry" />
+        </mxCell>
+        <mxCell id="tech_css" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#283593;fontSize=10;fontStyle=1;arcSize=15;shadow=1;" value="🎨 CSS3" vertex="1">
+          <mxGeometry height="30" width="95" x="755" y="852" as="geometry" />
+        </mxCell>
+        <mxCell id="tech_js" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8E1;strokeColor=#F9A825;fontSize=10;fontStyle=1;arcSize=15;shadow=1;" value="⚡ JavaScript" vertex="1">
+          <mxGeometry height="30" width="95" x="865" y="852" as="geometry" />
+        </mxCell>
+        <mxCell id="tech_svg" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;fontSize=10;fontStyle=1;arcSize=15;shadow=1;" value="🗺️ SVG" vertex="1">
+          <mxGeometry height="30" width="95" x="975" y="852" as="geometry" />
+        </mxCell>
+        <mxCell id="tech_numpy" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#607D8B;fontSize=10;fontStyle=1;arcSize=15;shadow=1;" value="🔢 NumPy" vertex="1">
+          <mxGeometry height="30" width="95" x="1085" y="815" as="geometry" />
+        </mxCell>
+        <mxCell id="tech_geojson" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#607D8B;fontSize=10;fontStyle=1;arcSize=15;shadow=1;" value="🌍 GeoJSON" vertex="1">
+          <mxGeometry height="30" width="95" x="1085" y="852" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

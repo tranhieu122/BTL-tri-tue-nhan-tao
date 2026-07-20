@@ -110,7 +110,6 @@ const App = (() => {
         document.getElementById('btn-refresh-history').addEventListener('click', loadHistory);
         document.getElementById('btn-random-route').addEventListener('click', createRandomRoute);
         document.getElementById('algorithm-select').addEventListener('change', updateAlgorithmInsight);
-        document.getElementById('btn-route-insights').addEventListener('click', loadRouteInsights);
 
         // ---- Tools ----
         document.getElementById('btn-random-blocks').addEventListener('click', generateRandomBlocks);
@@ -507,8 +506,6 @@ const App = (() => {
                 startMapTrace(result, algorithm);
                 // Cập nhật statistics
                 updateStats(result);
-                document.getElementById('btn-route-insights').disabled = false;
-                loadRouteInsights();
 
                 // Khởi tạo visualization
                 const totalSteps = Visualization.init(result, {
@@ -594,8 +591,6 @@ const App = (() => {
         document.getElementById('btn-step-mode').innerHTML = '👣 Từng bước';
         document.getElementById('step-info').style.display = 'none';
         document.getElementById('run-report').style.display = 'none';
-        document.getElementById('resilience-report').style.display = 'none';
-        document.getElementById('btn-route-insights').disabled = true;
         showToast('↺ Đã reset tất cả', 'info');
     }
 
@@ -817,36 +812,6 @@ const App = (() => {
 
         body.innerHTML = rows.map(([label, value]) => `<tr><th>${label}</th><td>${value}</td></tr>`).join('');
         report.style.display = 'block';
-    }
-
-    async function loadRouteInsights() {
-        if (!state.startCity || !state.endCity) return;
-
-        const report = document.getElementById('resilience-report');
-        const summary = document.getElementById('resilience-summary');
-        const body = document.getElementById('resilience-body');
-        const button = document.getElementById('btn-route-insights');
-        button.disabled = true;
-        report.style.display = 'block';
-        summary.textContent = 'Đang mô phỏng sự cố từng đoạn đường...';
-        body.innerHTML = '';
-
-        try {
-            const insights = await AlgorithmsAPI.getRouteInsights(
-                state.startCity, state.endCity, VietnamMap.getBlockedEdges()
-            );
-            summary.textContent = `Đã kiểm tra ${insights.tested_links} đoạn trên lộ trình ${insights.baseline_cost} km`;
-            body.innerHTML = insights.critical_links.map(link => {
-                const impact = link.alternative_cost < 0
-                    ? '<span class="risk-badge risk-high">Mất kết nối</span>'
-                    : `<span class="risk-badge risk-medium">+${link.extra_distance} km đường vòng</span>`;
-                return `<tr><th>${link.from} → ${link.to}</th><td>${impact}</td></tr>`;
-            }).join('');
-        } catch (error) {
-            summary.textContent = `Không thể phân tích: ${error.message}`;
-        } finally {
-            button.disabled = false;
-        }
     }
 
     /**

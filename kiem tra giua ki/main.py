@@ -1,227 +1,152 @@
-"""
-main.py – Chạy và in chi tiết 6 thuật toán tìm kiếm trên đồ thị G1,
-          kèm bảng tổng hợp và đo thời gian trung bình (20 lần).
+import numpy as np
+import matplotlib.pyplot as plt
+import warnings
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score
 
-Cấu trúc dự án:
-    graph.py        – Định nghĩa đồ thị G1 và heuristic
-    bfs.py          – BFS  (f = không có, tìm kiếm mù theo chiều rộng)
-    dfs.py          – DFS  (f = không có, tìm kiếm mù theo chiều sâu)
-    ids.py          – IDS  (Iterative Deepening Search)
-    best_first.py   – Best-First / UCS  (f = g(n), không dùng heuristic)
-    gbfs.py         – GBFS  (f = h(n), tham lam theo heuristic)
-    astar.py        – A*  (f = g(n) + h(n))
-    benchmark.py    – Đo hiệu năng, xuất result.csv
-    main.py         – Điểm vào chính (file này)
-"""
+# Tắt cảnh báo log chia cho 0 trong một số epoch đầu tiên
+warnings.filterwarnings('ignore')
 
-import time
-
-from graph      import G1_GRAPH, G1_HEURISTIC, G1_START, G1_GOAL
-from bfs        import bfs
-from dfs        import dfs
-from ids        import ids
-from best_first import best_first
-from gbfs       import gbfs
-from astar      import astar
-
-RUNS = 20   # số lần chạy để đo thời gian trung bình
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-# Tiện ích in bảng
-# ══════════════════════════════════════════════════════════════════════════════
-
-def print_table(headers, rows):
-    widths = [len(h) for h in headers]
-    for row in rows:
-        for i, cell in enumerate(row):
-            widths[i] = max(widths[i], len(str(cell)))
-
-    def fmt(row):
-        return ' | '.join(str(c).ljust(widths[i]) for i, c in enumerate(row))
-
-    sep = '-+-'.join('-' * w for w in widths)
-    print(fmt(headers))
-    print(sep)
-    for row in rows:
-        print(fmt(row))
-    print()
-
-
-def print_header(title):
-    print()
-    print('═' * 72)
-    print(f'  {title}')
-    print('═' * 72)
-
-
-def print_result_summary(result, name):
-    if result is None:
-        print(f'  [{name}] ✗ Không tìm thấy đường đi!\n')
-        return
-    print(f'  Đường đi : {" → ".join(result["path"])}')
-    print(f'  Chi phí  : {result["cost"]}')
-    print(f'  Node mở  : {result["expanded"]}')
-    print(f'  Node sinh: {result["generated"]}')
-    print()
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-# Hàm hiển thị chi tiết từng thuật toán
-# ══════════════════════════════════════════════════════════════════════════════
-
-def show_bfs(result):
-    print_header('BFS – Breadth-First Search  (không có heuristic)')
-    rows = [[s['step'], s['node'], s['path'], s['cost'], s['note']]
-            for s in result['steps']]
-    print_table(['Bước', 'Đỉnh', 'Đường đi', 'Chi phí', 'Ghi chú'], rows)
-    print_result_summary(result, 'BFS')
-
-
-def show_dfs(result):
-    print_header('DFS – Depth-First Search  (không có heuristic)')
-    rows = [[s['step'], s['node'], s['path'], s['cost'], s['note']]
-            for s in result['steps']]
-    print_table(['Bước', 'Đỉnh', 'Đường đi', 'Chi phí', 'Ghi chú'], rows)
-    print_result_summary(result, 'DFS')
-
-
-def show_ids(result):
-    print_header('IDS – Iterative Deepening Search  (không có heuristic)')
-    for depth, steps in result['steps_by_depth'].items():
-        print(f'  ── Giới hạn độ sâu = {depth} ──')
-        rows = [[s['step'], s['node'], s['depth'], s['path'], s['cost'], s['note']]
-                for s in steps]
-        print_table(['Bước', 'Đỉnh', 'Độ sâu', 'Đường đi', 'Chi phí', 'Ghi chú'], rows)
-    print(f'  Tìm thấy ở giới hạn độ sâu = {result["depth_found"]}')
-    print_result_summary(result, 'IDS')
-
-
-def show_best_first(result):
-    print_header('Best-First Search / UCS  [f(n) = g(n)]')
-    rows = [[s['step'], s['node'], s['g'], s['path'], s['note']]
-            for s in result['steps']]
-    print_table(['Bước', 'Đỉnh', 'g(n)', 'Đường đi', 'Ghi chú'], rows)
-    print_result_summary(result, 'Best-First')
-
-
-def show_gbfs(result):
-    print_header('GBFS – Greedy Best-First Search  [f(n) = h(n)]')
-    rows = [[s['step'], s['node'], s['h'], s['g'], s['path'], s['note']]
-            for s in result['steps']]
-    print_table(['Bước', 'Đỉnh', 'h(n)', 'Chi phí thực', 'Đường đi', 'Ghi chú'], rows)
-    print_result_summary(result, 'GBFS')
-
-
-def show_astar(result):
-    print_header('A* Search  [f(n) = g(n) + h(n)]')
-    rows = [[s['step'], s['node'], s['g'], s['h'], s['f'], s['path'], s['note']]
-            for s in result['steps']]
-    print_table(['Bước', 'Đỉnh', 'g(n)', 'h(n)', 'f(n)', 'Đường đi', 'Ghi chú'], rows)
-    print_result_summary(result, 'A*')
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-# Đo thời gian trung bình
-# ══════════════════════════════════════════════════════════════════════════════
-
-def measure_avg_ms(algo_fn):
-    times = []
-    for _ in range(RUNS):
-        t0 = time.perf_counter()
-        algo_fn()
-        t1 = time.perf_counter()
-        times.append(t1 - t0)
-    return round((sum(times) / RUNS) * 1000, 4)
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-# Bảng tổng hợp kết quả
-# ══════════════════════════════════════════════════════════════════════════════
-
-def print_summary(rows):
-    print()
-    print('═' * 72)
-    print('  BẢNG TỔNG HỢP KẾT QUẢ  (thời gian trung bình qua 20 lần chạy)')
-    print('═' * 72)
-    headers = ['Thuật toán', 'Đường đi', 'Chi phí',
-               'Node mở', 'Node sinh', 'TG TB (ms)']
-    print_table(headers, rows)
-
-
-def make_row(name, result, t_ms):
-    if result:
-        return [name, '→'.join(result['path']), result['cost'],
-                result['expanded'], result['generated'], t_ms]
-    return [name, '-', '-', '-', '-', t_ms]
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-# Main
-# ══════════════════════════════════════════════════════════════════════════════
+# Hàm phụ trợ dùng để vẽ và hiển thị biểu đồ
+def plot_epoch(train_data, test_data, title, filename, epochs):
+    plt.figure(figsize=(10, 6))
+    
+    plt.plot(range(1, epochs + 1), train_data, 
+             label=f'Huấn luyện (Train) - Cuối: {train_data[-1]*100:.1f}%', 
+             linewidth=2.5, marker='o', markersize=4, color='#1f77b4') 
+    plt.plot(range(1, epochs + 1), test_data, 
+             label=f'Kiểm tra (Test) - Cuối: {test_data[-1]*100:.1f}%', 
+             linewidth=2.5, marker='s', markersize=4, color='#d62728')  
+    
+    plt.title(title, fontsize=15, fontweight='bold', pad=15)
+    plt.ylabel('Độ chính xác (Accuracy)', fontsize=12, fontweight='bold')
+    plt.xlabel('Vòng lặp (Epoch)', fontsize=12, fontweight='bold')
+    
+    plt.legend(loc='lower right', fontsize=11, frameon=True, shadow=True)
+    plt.xticks(np.arange(0, epochs + 1, 5))
+    
+    best_test = max(test_data)
+    plt.axhline(y=best_test, color='gray', linestyle='--', alpha=0.7)
+    plt.text(2, best_test + 0.01, f'Max Test: {best_test*100:.1f}%', color='red', fontsize=10, fontweight='bold')
+    
+    plt.grid(True, which='major', linestyle='-', alpha=0.5)
+    plt.minorticks_on()
+    plt.grid(True, which='minor', linestyle=':', alpha=0.3)
+    
+    plt.tight_layout()
+    plt.savefig(filename, dpi=300)
+    plt.show(block=False)  # Giúp vẽ đồ thị ra ngay lập tức
+    plt.pause(0.5)         # Tạm nghỉ xíu để đồ thị kịp hiện lên trên Colab
+    print(f"\n[+] Đã vẽ và lưu xong: {filename}!")
 
 def main():
-    g, h = G1_GRAPH, G1_HEURISTIC
-    s, goal = G1_START, G1_GOAL
+    print("======================================================================")
+    print(" BÀI KIỂM TRA: PHÂN LOẠI HOA IRIS - NAIVE BAYES (CÓ BIỂU ĐỒ EPOCH)")
+    print("======================================================================")
+    
+    # 1. Tải và chia dữ liệu
+    iris = load_iris()
+    X = iris.data
+    y = iris.target
+    target_names = iris.target_names
+    
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=1/3, random_state=42, stratify=y
+    )
+    
+    # 2. Huấn luyện qua các Epochs để thu thập dữ liệu vẽ biểu đồ
+    print("\n[+] Đang mô phỏng quá trình huấn luyện qua các Epochs...")
+    nb_classifier = GaussianNB()
+    classes = np.unique(y)
+    
+    # Chuẩn bị danh sách lưu trữ độ chính xác
+    train_acc = []
+    test_acc = []
+    train_acc_classes = {0: [], 1: [], 2: []} # 0: setosa, 1: versicolor, 2: virginica
+    test_acc_classes = {0: [], 1: [], 2: []}
+    epochs = 45 
+    
+    np.random.seed(42)
+    for epoch in range(1, epochs + 1):
+        sample_size = max(5, int(epoch * 2.2))
+        idx = np.random.choice(len(X_train), size=sample_size, replace=False)
+        X_batch = X_train[idx]
+        y_batch = y_train[idx]
+        
+        nb_classifier.partial_fit(X_batch, y_batch, classes=classes)
+        
+        y_train_pred = nb_classifier.predict(X_train)
+        y_test_pred = nb_classifier.predict(X_test)
+        
+        # Độ chính xác chung
+        train_acc.append(accuracy_score(y_train, y_train_pred))
+        test_acc.append(accuracy_score(y_test, y_test_pred))
+        
+        # Độ chính xác của riêng từng loài hoa
+        for i in range(3):
+            mask_tr = (y_train == i)
+            if np.sum(mask_tr) > 0:
+                train_acc_classes[i].append(accuracy_score(y_train[mask_tr], y_train_pred[mask_tr]))
+            else:
+                train_acc_classes[i].append(0)
+                
+            mask_te = (y_test == i)
+            if np.sum(mask_te) > 0:
+                test_acc_classes[i].append(accuracy_score(y_test[mask_te], y_test_pred[mask_te]))
+            else:
+                test_acc_classes[i].append(0)
+                
+    print("[+] Hoàn tất huấn luyện!")
+    
+    # Khởi tạo mô hình dự đoán chuẩn để người dùng nhập thông số dự đoán
+    final_model = GaussianNB()
+    final_model.fit(X_train, y_train)
 
-    print()
-    print('╔' + '═' * 70 + '╗')
-    print('║  KIỂM TRA GIỮA KỲ – TRÍ TUỆ NHÂN TẠO'.ljust(71) + '║')
-    print('║  Đồ thị G1  |  Đỉnh đầu: S  |  Đỉnh đích: G'.ljust(71) + '║')
-    print('╚' + '═' * 70 + '╝')
+    # 3. KHỐI MENU NHẬP XUẤT TƯƠNG TÁC
+    while True:
+        print("\n" + "="*70)
+        print(" TÍNH NĂNG TƯƠNG TÁC: XEM BIỂU ĐỒ & DỰ ĐOÁN")
+        print("="*70)
+        print("1. Xem biểu đồ Epoch của riêng loài SETOSA")
+        print("2. Xem biểu đồ Epoch của riêng loài VERSICOLOR")
+        print("3. Xem biểu đồ Epoch của riêng loài VIRGINICA")
+        print("4. Xem biểu đồ Epoch CHUNG (Của cả mô hình)")
+        print("5. Nhập 4 kích thước để máy tính dự đoán loài hoa")
+        print("6. Thoát chương trình")
+        print("-" * 70)
+        
+        choice = input("=> Mời bạn chọn chức năng (1-6): ")
+        
+        if choice == '1':
+            plot_epoch(train_acc_classes[0], test_acc_classes[0], "Biểu đồ Epoch - Loài SETOSA", "Epoch_Setosa.png", epochs)
+        elif choice == '2':
+            plot_epoch(train_acc_classes[1], test_acc_classes[1], "Biểu đồ Epoch - Loài VERSICOLOR", "Epoch_Versicolor.png", epochs)
+        elif choice == '3':
+            plot_epoch(train_acc_classes[2], test_acc_classes[2], "Biểu đồ Epoch - Loài VIRGINICA", "Epoch_Virginica.png", epochs)
+        elif choice == '4':
+            plot_epoch(train_acc, test_acc, "Biểu đồ Epoch - CHUNG (Toàn mô hình)", "Epoch_Chung.png", epochs)
+        elif choice == '5':
+            try:
+                print("\n[+] DỰ ĐOÁN THỦ CÔNG")
+                val1 = input("  - 1. Chiều dài đài hoa (Sepal length) tính bằng cm: ")
+                val2 = input("  - 2. Chiều rộng đài hoa (Sepal width) tính bằng cm: ")
+                val3 = input("  - 3. Chiều dài cánh hoa (Petal length) tính bằng cm: ")
+                val4 = input("  - 4. Chiều rộng cánh hoa (Petal width) tính bằng cm: ")
+                
+                features = np.array([[float(val1), float(val2), float(val3), float(val4)]])
+                pred_idx = final_model.predict(features)[0]
+                pred_name = target_names[pred_idx]
+                
+                print(f"\n=> 🤖 KẾT QUẢ: Dựa trên số đo, mô hình đoán đây là giống hoa ** {pred_name.upper()} **")
+            except ValueError:
+                print("\n❌ Lỗi: Vui lòng nhập số hợp lệ (ví dụ: 5.1).")
+        elif choice == '6':
+            print("\nĐã thoát chương trình. Tạm biệt!")
+            break
+        else:
+            print("\n❌ Lựa chọn không hợp lệ, vui lòng nhập số từ 1 đến 6.")
 
-    # ── Chạy thuật toán ──────────────────────────────────────────────────────
-    r_bfs  = bfs(g, s, goal)
-    r_dfs  = dfs(g, s, goal)
-    r_ids  = ids(g, s, goal)
-    r_bf   = best_first(g, s, goal)
-    r_gbfs = gbfs(g, h, s, goal)
-    r_ast  = astar(g, h, s, goal)
-
-    # ── In chi tiết từng thuật toán ───────────────────────────────────────────
-    show_bfs(r_bfs)
-    show_dfs(r_dfs)
-    show_ids(r_ids)
-    show_best_first(r_bf)
-    show_gbfs(r_gbfs)
-    show_astar(r_ast)
-
-    # ── Đo thời gian trung bình ───────────────────────────────────────────────
-    t_bfs  = measure_avg_ms(lambda: bfs(g, s, goal))
-    t_dfs  = measure_avg_ms(lambda: dfs(g, s, goal))
-    t_ids  = measure_avg_ms(lambda: ids(g, s, goal))
-    t_bf   = measure_avg_ms(lambda: best_first(g, s, goal))
-    t_gbfs = measure_avg_ms(lambda: gbfs(g, h, s, goal))
-    t_ast  = measure_avg_ms(lambda: astar(g, h, s, goal))
-
-    summary_rows = [
-        make_row('DFS',        r_dfs,  t_dfs),
-        make_row('BFS',        r_bfs,  t_bfs),
-        make_row('IDS',        r_ids,  t_ids),
-        make_row('Best-First', r_bf,   t_bf),
-        make_row('GBFS',       r_gbfs, t_gbfs),
-        make_row('A*',         r_ast,  t_ast),
-    ]
-    print_summary(summary_rows)
-
-    # ── Kết luận ─────────────────────────────────────────────────────────────
-    print('  KẾT LUẬN:')
-    print('  - DFS       : mở rộng ít node, nhanh nhưng KHÔNG tối ưu về chi phí.')
-    print('  - BFS       : đảm bảo ít cạnh nhất, KHÔNG tối ưu về chi phí.')
-    print('  - IDS       : như BFS về độ tối ưu, ít bộ nhớ hơn, nhưng lặp nhiều lần.')
-    print('  - Best-First: tối ưu về chi phí (UCS), không cần heuristic.')
-    print('  - GBFS      : nhanh nhờ heuristic, nhưng KHÔNG đảm bảo tối ưu.')
-    print('  - A*        : TỐI ƯU & ĐẦY ĐỦ; mở ít node hơn UCS nhờ heuristic.')
-    print()
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-# Legacy code giữ lại để tham khảo
-# ══════════════════════════════════════════════════════════════════════════════
-
-def _legacy_placeholder():
-    """Phần này đã được tái cấu trúc thành các module riêng biệt."""
